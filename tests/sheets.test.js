@@ -63,12 +63,12 @@ test('fetchSheetRows chịu được range rỗng', async () => {
 test('createClient báo lỗi rõ ràng khi JSON trong biến môi trường hỏng', () => {
   assert.throws(
     () => createClient({ credentialsJson: '{not json' }),
-    /GOOGLE_SERVICE_ACCOUNT_JSON không phải JSON hợp lệ/
+    /GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON/
   );
 });
 
 test('createClient báo lỗi khi không có credential nào', () => {
-  assert.throws(() => createClient({}), /Thiếu credential/);
+  assert.throws(() => createClient({}), /No credentials/);
 });
 
 test('createClient ưu tiên JSON trong biến môi trường hơn đường dẫn file', () => {

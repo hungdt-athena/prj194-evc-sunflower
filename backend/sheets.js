@@ -29,12 +29,12 @@ function createClient({ keyFile, credentialsJson }) {
     try {
       credentials = JSON.parse(credentialsJson);
     } catch (err) {
-      throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON không phải JSON hợp lệ: ' + err.message);
+      throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON: ' + err.message);
     }
     return google.sheets({ version: 'v4', auth: new google.auth.GoogleAuth({ credentials, scopes: SCOPES }) });
   }
   if (!keyFile) {
-    throw new Error('Thiếu credential: đặt GOOGLE_SERVICE_ACCOUNT_JSON hoặc GOOGLE_SERVICE_ACCOUNT_KEY_FILE');
+    throw new Error('No credentials. Set GOOGLE_SERVICE_ACCOUNT_JSON (on Replit: add the secret, then Republish so the deployment reloads it)');
   }
   return google.sheets({ version: 'v4', auth: new google.auth.GoogleAuth({ keyFile, scopes: SCOPES }) });
 }

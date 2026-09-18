@@ -732,8 +732,11 @@
                 const when = new Date(m.last_synced_at.replace(' ', 'T') + 'Z');
                 const mins = Math.floor((Date.now() - when.getTime()) / 60000);
                 const ago = mins < 1 ? 'just now' : mins < 60 ? mins + 'm ago' : Math.floor(mins / 60) + 'h ago';
-                el.textContent = m.last_status === 'ok' ? 'synced ' + ago : m.last_status;
-                el.style.color = m.last_status === 'ok' ? 'var(--tx2)' : 'var(--pend)';
+                // Lỗi nội bộ không phơi ra cho người xem: nhãn nói ngắn gọn, chi tiết vào console.
+                const ok = m.last_status === 'ok';
+                if (!ok) console.error('[Sync]', m.last_status);
+                el.textContent = ok ? 'synced ' + ago : 'sync failed';
+                el.style.color = ok ? 'var(--tx2)' : 'var(--pend)';
             } catch (e) { el.textContent = ''; }
         }
 

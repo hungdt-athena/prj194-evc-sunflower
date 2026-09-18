@@ -40,7 +40,7 @@ async function runSync(opts = {}) {
 
     for (const w of warnings) logger.log(`[Sync] ${w}`);
     const skipped = raw.length - meetings.length;
-    if (skipped > 0) logger.log(`[Sync] Bỏ qua ${skipped} dòng raw không hợp lệ`);
+    if (skipped > 0) logger.log(`[Sync] Skipped ${skipped} unusable raw rows`);
 
     const { inserted, updated, deleted } = store.replaceAll(meetings, reviews);
     const total = meetings.length + reviews.length;
@@ -55,7 +55,7 @@ async function runSync(opts = {}) {
       last_status: 'ok',
     });
 
-    logger.log(`[Sync] Xong: +${inserted} ~${updated} -${deleted} (tổng ${total})`);
+    logger.log(`[Sync] Done: +${inserted} ~${updated} -${deleted} (total ${total})`);
     emitSSE(sseClients, {
       type: 'sync',
       inserted, updated, deleted, total,
@@ -64,7 +64,7 @@ async function runSync(opts = {}) {
 
     return { ok: true, inserted, updated, deleted, total };
   } catch (err) {
-    logger.error(`[Sync] Lỗi: ${err.message}`);
+    logger.error(`[Sync] Failed: ${err.message}`);
     try {
       store.stmts.updateMeta.run({
         rows_in_sheet: 0,
@@ -80,17 +80,32 @@ async function runSync(opts = {}) {
   }
 }
 
+/**
+ * In ra cấu hình đang thấy được, không in giá trị. Deployment chỉ nạp biến môi
+ * trường lúc khởi động, nên khi thiếu biến thì log này là chỗ nhìn đầu tiên.
+ */
+function describeConfig() {
+  const json = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  return [
+    `SHEET_ID=${process.env.SHEET_ID ? 'set' : 'MISSING'}`,
+    `GOOGLE_SERVICE_ACCOUNT_JSON=${json ? json.length + ' chars' : 'missing'}`,
+    `GOOGLE_SERVICE_ACCOUNT_KEY_FILE=${process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE || 'missing'}`,
+    `SLA_HOURS=${process.env.SLA_HOURS || DEFAULT_SLA_HOURS}`,
+  ].join(' · ');
+}
+
 function startSyncLoop(app) {
+  console.log(`[Config] ${describeConfig()}`);
   if (!process.env.SHEET_ID) {
-    console.log('[Sync] Chưa cấu hình SHEET_ID. Bỏ qua auto-sync.');
+    console.log('[Sync] SHEET_ID is not set. Skipping auto-sync.');
     return;
   }
   const minutes = Number(process.env.SYNC_INTERVAL_MINUTES) || 5;
-  console.log(`[Sync] Tự đồng bộ mỗi ${minutes} phút`);
+  console.log(`[Sync] Auto-sync every ${minutes} minutes`);
 
   const tick = () => runSync({ sseClients: app.locals.sseClients || [] });
   tick();
   setInterval(tick, minutes * 60 * 1000);
 }
 
-module.exports = { runSync, startSyncLoop };
+module.exports = { runSync, startSyncLoop, describeConfig };
