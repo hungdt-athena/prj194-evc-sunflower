@@ -32,17 +32,10 @@ test('toReviews tính review_hours từ meeting_time nằm sẵn trong dòng rev
   assert.strictEqual(r.team, 'investment');
 });
 
-test('toReviews đánh SLA breach theo ngưỡng truyền vào', () => {
-  const rows = [{ ...reviewedRows[0], reviewed_at: '12/09/2026 23:59:32' }];
-  assert.strictEqual(toReviews(rows, { slaHours: 4 })[0].is_sla_breach, 0);
-  assert.strictEqual(toReviews(rows, { slaHours: 2 })[0].is_sla_breach, 1);
-});
-
-test('toReviews dùng đúng ngưỡng biên: đúng 4 giờ không phải breach', () => {
+test('toReviews tính review_hours chính xác tới số lẻ', () => {
   const rows = [{ ...reviewedRows[0], reviewed_at: '13/09/2026 00:59:32' }];
-  const [r] = toReviews(rows, { slaHours: 4 });
+  const [r] = toReviews(rows)
   assert.strictEqual(r.review_hours, 4);
-  assert.strictEqual(r.is_sla_breach, 0);
 });
 
 test('toReviews lấy meeting_time từ bảng tra cứu khi dòng review thiếu', () => {
@@ -56,7 +49,6 @@ test('toReviews lấy meeting_time từ bảng tra cứu khi dòng review thiế
 test('toReviews để review_hours null khi không có nguồn meeting_time nào', () => {
   const [r] = toReviews([{ ...reviewedRows[0], meeting_time: '' }]);
   assert.strictEqual(r.review_hours, null);
-  assert.strictEqual(r.is_sla_breach, 0);
 });
 
 test('toReviews phân loại re-reviewed theo thứ tự reviewed_at, bỏ qua cột review_type của sheet', () => {

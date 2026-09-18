@@ -7,7 +7,7 @@ const { rawRows, reviewedRows } = require('./fixtures/sheet-rows');
 function seed() {
   const store = openDb(':memory:');
   const meetings = rawRows.map(r => toMeeting(r)).filter(Boolean);
-  const reviews = toReviews(reviewedRows, { slaHours: 4 });
+  const reviews = toReviews(reviewedRows);
   const result = store.replaceAll(meetings, reviews);
   return { store, result };
 }
@@ -23,7 +23,7 @@ test('replaceAll ghi toàn bộ meetings và reviews', () => {
 test('replaceAll lần hai đếm là updated chứ không phải inserted', () => {
   const { store } = seed();
   const meetings = rawRows.map(r => toMeeting(r)).filter(Boolean);
-  const reviews = toReviews(reviewedRows, { slaHours: 4 });
+  const reviews = toReviews(reviewedRows);
   const again = store.replaceAll(meetings, reviews);
   assert.strictEqual(again.inserted, 0);
   assert.strictEqual(again.updated, 8);

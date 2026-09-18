@@ -63,14 +63,51 @@
         }
 
         /* ── Header ─────────────────────────────── */
+        /* Header dính lại khi cuộn: bộ lọc là thứ người ta quay lại dùng liên tục,
+           phải cuộn ngược lên đầu trang mỗi lần đổi period thì rất phiền. */
+        .topbar { position: sticky; top: 0; z-index: 60; background: var(--s1); }
         .hdr {
             background: var(--s1);
             border-bottom: 1px solid var(--bd);
-            padding: 14px 28px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            padding: 12px 24px;
         }
+        .hdr-top { display: flex; align-items: center; gap: 10px; }
+        /* Câu trả lời sống, thay cho câu hỏi tĩnh cũ. Đây là thứ đầu tiên đáng đọc
+           trên trang, nên nó được cỡ chữ lớn nhất ngoài tên sản phẩm. */
+        .ab-top { display: flex; align-items: flex-start; gap: 10px; }
+        .ab-body { margin-left: 19px; }
+        .ab-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0 19px; }
+        .chip {
+            font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+            background: var(--s2); border: 1px solid var(--bd); color: var(--tx2);
+            font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+        .chip-warn { border-color: var(--conf); color: var(--ac-ink); }
+        .chip-wait { border-color: var(--conf); color: var(--ac-ink); }
+        .chip-team { border-color: var(--tx2); color: var(--tx); }
+        .chip-quiet { opacity: .6; }
+        .ab.lv-ok { background: var(--s1); border-color: var(--bd); }
+        .ab .ab-list { margin: 12px 0 0; padding: 0; list-style: none; }
+        .ab .ab-list li { position: relative; padding-left: 15px; line-height: 1.6; }
+        .ab .ab-list li + li { margin-top: 5px; }
+        .ab .ab-list li::before {
+            content: ''; position: absolute; left: 0; top: .62em;
+            width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .38;
+        }
+        .verdict { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; }
+        .verdict-dot {
+            width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 6px;
+            background: var(--tx2);
+        }
+        .verdict-dot.lv-ok { background: var(--rev); }
+        .verdict-dot.lv-warn { background: var(--conf); }
+        .verdict-dot.lv-bad { background: var(--pend); }
+        .verdict-lead {
+            font-size: 15px; font-weight: 700; color: var(--tx);
+            letter-spacing: -0.015em; line-height: 1.35;
+        }
+        .verdict-detail { font-size: 12.5px; color: var(--tx2); margin-top: 3px; line-height: 1.5; }
+       .verdict b { color: var(--tx); font-weight: 700; }
         .hdr h1 {
             font-size: 17px;
             font-weight: 800;
@@ -97,6 +134,7 @@
             letter-spacing: 0.02em;
         }
         .rng { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+        .hdr .rng { display: none; }
         .rng-badge {
             background: var(--s2); border: 1px solid var(--bd); border-radius: 20px;
             padding: 3px 10px; font-size: 11px; font-weight: 500; color: var(--tx2);
@@ -224,11 +262,11 @@
         .frsh.spin svg { animation: frspin 1s linear infinite; }
         @keyframes frspin { to { transform: rotate(360deg); } }
         .synced { font-size: 11px; color: var(--tx2); white-space: nowrap; }
-            margin-left: auto;
 
-        /* ── Tab content ───────────────────────── */
-        .page { padding: 24px 28px; }
-        .tc.on { display: block; }
+        /* Trái là bộ lọc, phải là hành động và trạng thái. */
+        .frsh { margin-left: auto; }
+
+        .page { padding: 20px 24px; }
 
         /* ── KPI grid ──────────────────────────── */
         .kr { display: grid; gap: 14px; margin-bottom: 20px; }
@@ -371,10 +409,24 @@
 
         /* ── Insight Panel (Redesigned) ─────────── */
         .rb {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 0; border-radius: var(--r); overflow: hidden;
+            border-radius: var(--r); overflow: hidden;
             border: 1.5px solid var(--bd); margin-bottom: 20px;
         }
+        .rb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+        @media (max-width: 760px) { .rb-grid { grid-template-columns: 1fr; } }
+        /* .rb là lưới 2 cột, nên summary phải được cho chiếm trọn hàng, không thì nó
+           bị xếp thành một ô lưới và lệch khỏi lề của các thẻ bên dưới. */
+        .rb > summary {
+            list-style: none; cursor: pointer;
+            font-size: 12px; font-weight: 600; color: var(--tx2);
+            display: flex; align-items: center; gap: 7px;
+            padding: 9px 16px;
+        }
+        .rb > summary::-webkit-details-marker { display: none; }
+        .rb > summary::before { content: '▸'; font-size: 10px; }
+        .rb[open] > summary::before { content: '▾'; }
+        .rb > summary:hover { color: var(--tx); }
+        .rb[open] > summary { border-bottom: 1.5px solid var(--bd); }
         .rb-head {
             grid-column: 1 / -1;
             background: var(--s2);
@@ -531,6 +583,136 @@
         ::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--tx2); }
 
+        /* ── Settings panel ─────────────────────── */
+        .fgear {
+            padding: 6px 9px; border: 1.5px solid var(--bd); border-radius: 7px;
+            background: transparent; color: var(--tx2); cursor: pointer;
+            display: inline-flex; align-items: center;
+        }
+        .fgear:hover { color: var(--tx); border-color: var(--tx2); }
+        .fgear svg { width: 14px; height: 14px; }
+        #cfg-back {
+            position: fixed; inset: 0; background: rgba(0,0,0,.45);
+            backdrop-filter: blur(2px); z-index: 9997; display: none;
+        }
+        #cfg-back.active { display: block; }
+        #cfg {
+            position: fixed; top: 0; right: 0; height: 100vh; width: 50vw; min-width: 460px; max-width: 100vw;
+            background: var(--s1); border-left: 1px solid var(--bd); z-index: 9998;
+            transform: translateX(100%); transition: transform .2s ease;
+            display: flex; flex-direction: column;
+        }
+        #cfg.active { transform: none; }
+        .cfg-head {
+            padding: 16px 20px; border-bottom: 1px solid var(--bd);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .cfg-head h2 { font-size: 15px; font-weight: 700; color: var(--tx); }
+        .cfg-x { background: none; border: none; color: var(--tx2); cursor: pointer; font-size: 20px; line-height: 1; }
+        .cfg-body { flex: 1; overflow-y: auto; padding: 18px 28px 28px; }
+        .cfg-foot {
+            padding: 12px 20px; border-top: 1px solid var(--bd);
+            display: flex; gap: 8px; align-items: center;
+        }
+        .cfg-note { font-size: 11px; color: var(--tx2); line-height: 1.5; margin-bottom: 14px; }
+        .cfg-grp { margin-bottom: 34px; }
+        .cfg-grp > summary { padding-bottom: 4px; }
+        .cfg-sec {
+            padding: 30px 0 32px;
+            border-top: 1px solid var(--bd);
+        }
+        .cfg-sec:first-of-type { border-top: none; padding-top: 10px; }
+        .cfg-sec:last-of-type { padding-bottom: 12px; }
+        .cfg-parts { margin-top: 12px; }
+        .cfg-parts.multi { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 20px; }
+        .cfg-part-lbl { font-size: 11px; font-weight: 600; color: var(--tx2); margin-bottom: 5px; }
+        .cfg-part .cfg-slider { margin: 8px 0 0; }
+        .cfg-sec-name { font-size: 13px; font-weight: 700; color: var(--tx); }
+        .cfg-sec-help { font-size: 11.5px; color: var(--tx2); line-height: 1.55; margin-top: 3px; max-width: 62ch; }
+        .cfg-nums { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .cfg-slider { width: 100%; margin: 14px 0 10px; accent-color: var(--ac); }
+        .cfg-read {
+            font-size: 11.5px; color: var(--tx2); margin-top: 8px; line-height: 1.5;
+        }
+        .cfg-read b { color: var(--tx); }
+        .cfg-groups { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+        .gchip {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 600; color: var(--tx);
+            background: var(--s2); border: 1px solid var(--bd);
+            border-radius: 6px; padding: 4px 9px;
+            font-variant-numeric: tabular-nums;
+        }
+        .gchip .gdot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+        .gchip .gn { color: var(--tx2); font-weight: 500; }
+        .cfg-prev { margin-top: 12px; }
+        .cfg-prev-lbl {
+            font-size: 10px; color: var(--tx2); margin-bottom: 5px;
+        }
+        .cfg-prev-box {
+            border-left: 3px solid var(--bd); padding: 8px 0 8px 12px;
+            font-size: 11.5px; line-height: 1.55; color: var(--tx);
+        }
+        .cfg-prev-box.lv-bad { border-left-color: var(--pend); }
+        .cfg-prev-box.lv-warn { border-left-color: var(--conf); }
+        .cfg-prev-box.lv-ok { border-left-color: var(--rev); }
+        .cfg-prev-box b { font-weight: 700; }
+        .cfg-prev-box svg { display: none; }
+        .cfg-prev-box .ab, .cfg-prev-box .ib {
+            background: none; border: none; padding: 0; margin: 0; box-shadow: none;
+        }
+        .cfg-prev-box .ab-header { font-size: 11px; margin-bottom: 4px; }
+        .cfg-prev-box .ab-list { margin: 0; padding: 0; }
+        .cfg-prev-box ul { list-style: none; }
+        .cfg-prev-box li + li { margin-top: 4px; }
+        .cfg-viz { margin-top: 12px; }
+        .cfg-viz svg { display: block; width: 100%; overflow: visible; }
+        .cfg-vlabel { font-size: 9.5px; fill: var(--tx2); }
+        .cfg-vname { font-size: 10px; fill: var(--tx); }
+        .cfg-grp > summary {
+            font-size: 12px; font-weight: 700; color: var(--tx); cursor: pointer;
+            padding: 6px 0; list-style: none; display: flex; align-items: center; gap: 6px;
+        }
+        .cfg-grp > summary::before { content: '▸'; color: var(--tx2); font-size: 10px; }
+        .cfg-grp[open] > summary::before { content: '▾'; }
+        .cfg-nums input[type=number] {
+            width: 72px; padding: 5px 8px; font-size: 13px; font-weight: 600;
+            font-family: inherit; text-align: right;
+            border: 1.5px solid var(--bd); border-radius: 6px;
+            background: var(--s2); color: var(--tx);
+        }
+        .cfg-nums input[type=number]:focus { outline: none; border-color: var(--ac); }
+        .cfg-nums input[type=number].bad { border-color: var(--pend); }
+        .cfg-unit { font-size: 11px; color: var(--tx2); }
+        .cfg-err { font-size: 11px; color: var(--pend); margin-top: 3px; font-weight: 600; }
+        .cfg-btn {
+            padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 700;
+            cursor: pointer; border: 1.5px solid var(--bd); background: transparent; color: var(--tx2);
+            font-family: inherit;
+        }
+        .cfg-btn:hover { color: var(--tx); border-color: var(--tx2); }
+        .cfg-btn.pri { background: var(--ac); border-color: var(--ac); color: var(--ac-on); }
+        .cfg-btn.pri:hover { opacity: .9; color: var(--ac-on); }
+        .cfg-btn:disabled { opacity: .5; cursor: default; }
+        .cfg-msg { font-size: 11px; color: var(--tx2); margin-left: auto; text-align: right; }
+        .cfg-msg.bad { color: var(--pend); font-weight: 600; }
+        .cfg-lock { padding: 8px 0; }
+        .cfg-lock input {
+            width: 100%; padding: 8px 10px; font-size: 13px; font-family: inherit;
+            border: 1.5px solid var(--bd); border-radius: 7px;
+            background: var(--s2); color: var(--tx); margin-bottom: 10px;
+        }
+        .cfg-lock input:focus { outline: none; border-color: var(--ac); }
+        .cfg-pw { border-top: 1px solid var(--bd); margin-top: 8px; padding-top: 14px; }
+        .cfg-pwrap { position: relative; }
+        .cfg-pwrap input { padding-right: 60px; }
+        .cfg-eye {
+            position: absolute; right: 8px; top: 7px;
+            background: none; border: none; cursor: pointer;
+            color: var(--ac-ink); font-size: 11px; font-weight: 700; font-family: inherit;
+        }
+        @media (max-width: 900px) { #cfg { width: 100vw; min-width: 0; } }
+
         /* ── Table/Chart Expand Modal ──────────── */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -574,7 +756,6 @@
 
         @media print {
             .fbar, .xbtn { display: none !important; }
-            .tc { display: block !important; }
             .cd, .kc { break-inside: avoid; }
             [data-theme="dark"] { --bg:#fff; --s1:#f8f8f8; --s2:#f0f0f0; --bd:#ddd; --tx:#111; --tx2:#555; }
         }
@@ -586,12 +767,15 @@
     <div id="pop"></div>
     <div id="modal-overlay"></div>
 
+    <div class="topbar">
     <div class="hdr">
+        <div class="hdr-top">
         <div class="hdr-logo">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.25"/><path d="M2.75 12h18.5"/><path d="M12 2.75c2.4 2.5 3.75 5.8 3.75 9.25S14.4 18.75 12 21.25c-2.4-2.5-3.75-5.8-3.75-9.25S9.6 5.25 12 2.75z"/></svg>
         </div>
         <h1>EVC Sunflower Dashboard</h1>
         <span class="rng" id="rng"></span>
+        <span style="margin-left:auto"></span>
         <div class="theme-toggle" id="thbtn" onclick="toggleTheme()" title="Toggle dark/light mode">
             <span class="th-opt active" id="th-light">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -602,14 +786,16 @@
                 Dark
             </span>
         </div>
+        </div>
+
     </div>
     <div class="fbar">
         <span class="fl">Period</span>
-        <button class="pb" onclick="sp(3,this)">3d</button>
-        <button class="pb" onclick="sp(7,this)">7d</button>
-        <button class="pb on" onclick="sp(14,this)">14d</button>
-        <button class="pb" onclick="sp(30,this)">30d</button>
-        <button class="pb" onclick="sp(0,this)">All</button>
+        <button class="pb" data-d="3" onclick="sp(3,this)">3d</button>
+        <button class="pb" data-d="7" onclick="sp(7,this)">7d</button>
+        <button class="pb on" data-d="14" onclick="sp(14,this)">14d</button>
+        <button class="pb" data-d="30" onclick="sp(30,this)">30d</button>
+        <button class="pb" data-d="0" onclick="sp(0,this)">All</button>
         <span class="sep">|</span>
         <input type="date" id="df" class="di" onchange="scr()">
         <span style="color:var(--tx2)">→</span>
@@ -622,14 +808,24 @@
         <button class="frsh" id="frsh" onclick="refetch()" title="Pull the latest rows from Google Sheets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Refresh</button>
         <span class="synced" id="synced"></span>
         <button class="frst" onclick="rst()">↺ Reset filter</button>
+        <button class="fgear" id="cfg-open" onclick="cfgOpen()" title="Settings — thresholds used to judge the numbers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 8a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 3.6 1.65 1.65 0 0010 2.09V2a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 8v0c.14.35.38.65.69.85.3.2.66.31 1.02.31H21a2 2 0 010 4h-.09c-.36 0-.72.11-1.02.31-.31.2-.55.5-.69.85z"/></svg></button>
+    </div>
     </div>
 
+    <div id="cfg-back" onclick="cfgClose()"></div>
+    <aside id="cfg" aria-label="Settings">
+        <div class="cfg-head">
+            <h2>Settings</h2>
+            <button class="cfg-x" onclick="cfgClose()" title="Close">&times;</button>
+        </div>
+        <div class="cfg-body" id="cfg-body"></div>
+        <div class="cfg-foot" id="cfg-foot"></div>
+    </aside>
+
     <main class="page">
-        <div class="rb">
-            <div class="rb-head">
-                <div class="rb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-                <div><div class="rb-title">Meeting Review Overview</div><div class="rb-purpose">Is the review pipeline flowing, or is it stuck?</div></div>
-            </div>
+        <details class="rb" id="rb">
+            <summary>How to read this dashboard</summary>
+            <div class="rb-grid">
             <div class="rb-col">
                 <div class="rb-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> How to Read</div>
                 <div class="rb-items">
@@ -642,12 +838,13 @@
             <div class="rb-col">
                 <div class="rb-label act"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Actions</div>
                 <div class="rb-items">
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--conf)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>A team below 50%</b> → talk to the lead and find what is blocking them.</span></div>
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--conf)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>Review time drifting past SLA</b> → files are being forgotten or reviewers are overloaded.</span></div>
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--pend)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>Backlog above 50%</b> → escalate to free the queue before it compounds.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--conf)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>A team below <span data-th="low_rate_pct">50</span>%</b> → talk to the lead and find what is blocking them.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--conf)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>Reviews drifting past <span data-th="review_deadline_hours">4</span>h</b> → files are being forgotten, or reviewers are overloaded.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--pend)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>A queue above <span data-th="team_backlog_high_pct">50</span>%</b> → escalate to free it before it compounds.</span></div>
                 </div>
             </div>
-        </div>
+            </div>
+        </details>
         <div id="ceo-ins"></div>
         <div class="kr kr5" id="ceo-k"></div>
         <div class="g2">
@@ -678,7 +875,7 @@
             <div class="cd">
                 <div class="ct"><span class="dot" style="background:var(--ac2)"></span>Review Time Distribution <i
                         class="hi"
-                        data-pop="Files bucketed by how long their review took.||Ideal: most files in <1h, 1-4h buckets.||4h+ = outside SLA.">?</i>
+                        data-pop="Files grouped by how long their review took.||Ideal: most files sit in the two fastest groups.||Anything past the review deadline counts as late — change the deadline in Settings.">?</i>
                 </div>
                 <div class="cw donut"><canvas id="cto-c2"></canvas></div>
                 <div class="ca" id="ca-cto-c2"></div>
@@ -720,6 +917,22 @@
         // ===== DATA =====
         ;
         let R = [], V = [], TEAM_N = {}, UNTAGGED_COUNT = 0;
+
+        // Ngưỡng đánh giá. TH là bộ đang áp dụng lên màn hình (có thể là bản xem thử
+        // chưa lưu); TH_SAVED là bộ đã lưu trên server, dùng để Cancel trả về.
+        // TH_FALLBACK giữ cho trang vẽ được nếu /api/settings hỏng — thà dùng mặc định
+        // còn hơn màn hình trắng.
+        const TH_FALLBACK = {
+            review_deadline_hours: 4, slow_review_hours: 8, review_time_groups: [1, 4, 24],
+            good_rate_pct: 80, low_rate_pct: 50, too_few_files: 3, show_count_below: 5,
+            unreviewed_high_pct: 40, unreviewed_medium_pct: 20,
+            waiting_high_pct: 30, waiting_medium_pct: 15,
+            team_backlog_high_pct: 50, busiest_team_share_pct: 40,
+            default_days: 14, daily_to_weekly_days: 31, weekly_to_monthly_weeks: 26,
+        };
+        let TH = { ...TH_FALLBACK }, TH_SAVED = { ...TH_FALLBACK };
+        let DATA_RANGE = '';
+        let TH_SCHEMA = [], TH_LOCKED = false, TH_TOKEN = '';
         let S = { df: null, dt: null, team: '' };
 
         // Hiển thị thời điểm sync gần nhất của backend (giờ VN, như sheet ghi).
@@ -767,20 +980,33 @@
         }
 
         async function fetchData() {
-            document.getElementById('rng').innerHTML = '<span id="loader">Loading Dashboard Data...</span>';
+            setVerdict('', 'Loading…', '');
             try {
-                const res = await fetch('/api/data');
+                const [res, sres] = await Promise.all([fetch('/api/data'), fetch('/api/settings')]);
                 if (!res.ok) throw new Error('API Request Failed');
                 const data = await res.json();
+                if (sres.ok) {
+                    const st = await sres.json();
+                    TH = { ...TH_FALLBACK, ...st.values };
+                    TH_SAVED = { ...TH };
+                    TH_SCHEMA = st.schema || [];
+                    TH_LOCKED = Boolean(st.locked);
+                } else {
+                    console.error('[Settings] Could not load thresholds — using defaults');
+                }
                 R = data.raw;
                 V = data.reviewed;
                 TEAM_N = data.team_n;
                 UNTAGGED_COUNT = data.untagged_raw || 0;
                 init();
                 showSyncedAt();
+                // Mở panel sau khi settings về, không phải lúc script chạy xong: mở sớm
+                // thì TH_SCHEMA còn rỗng và panel tưởng nhầm là server chưa đặt mật khẩu.
+                if (location.hash === '#settings') cfgOpen();
+                else if (document.getElementById('cfg').classList.contains('active')) cfgRender();
             } catch (error) {
                 console.error(error);
-                document.getElementById('rng').innerHTML = '<span class="rng-badge" style="color:var(--pend)">Error loading data.</span>';
+                setVerdict('bad', 'Could not load the data.', 'The server did not answer. Check it is running, then press Refresh.');
             }
         }
         const CH = {};
@@ -874,17 +1100,15 @@
 
         // Trục thời gian tự gộp khi khoảng chọn dài: một ngày một cột chỉ đọc được
         // trong phạm vi ~1 tháng, quá đó thì cột thưa và nhãn chồng nhau.
-        const MAX_DAILY_BUCKETS = 31;   // trên mức này gộp theo tuần
-        const MAX_WEEKLY_BUCKETS = 26;  // trên mức này gộp theo tháng
         const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
         function mondayOf(ds) { const dt = pd(ds); return fd(ad(dt, -((dt.getDay() + 6) % 7))) }
 
         function timeBuckets(days) {
-            if (days.length <= MAX_DAILY_BUCKETS) {
+            if (days.length <= TH.daily_to_weekly_days) {
                 return { unit: 'Day', keys: days, keyOf: d => d, labelOf: k => k.slice(5) };
             }
-            if (days.length <= MAX_WEEKLY_BUCKETS * 7) {
+            if (days.length <= TH.weekly_to_monthly_weeks * 7) {
                 const keys = [...new Set(days.map(mondayOf))];
                 return {
                     unit: 'Week', keys, keyOf: mondayOf,
@@ -901,15 +1125,15 @@
         // Fix 1: small-n badge
         function nBadge(team, n) {
             n = n || TEAM_N[team] || 0;
-            if (n <= 3) return ' <span class="sn-warn">' + ICO.warn() + 'n=' + n + '</span>';
-            if (n <= 5) return ' <span style="font-size:9px;color:var(--tx2)">(n=' + n + ')</span>';
+            if (n <= TH.too_few_files) return ' <span class="sn-warn">' + ICO.warn() + 'n=' + n + '</span>';
+            if (n <= TH.show_count_below) return ' <span style="font-size:9px;color:var(--tx2)">(n=' + n + ')</span>';
             return '';
         }
 
         // Base chart opts
         function gv(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() }
         function btt() { return { backgroundColor: gv('--s1')||'#fff', titleColor: gv('--ac-ink')||'#8f5a00', bodyColor: gv('--tx')||'#18181b', borderColor: gv('--bd')||'#e4e4e7', borderWidth: 1.5, padding: 12, cornerRadius: 9, boxPadding: 5, displayColors: true, usePointStyle: true, boxWidth: 8, boxHeight: 8 } }
-        function bd() { const tx2 = gv('--tx2')||'#71717a'; const bd2 = gv('--bd')||'#e4e4e7'; return { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tx2, font: { size: 10, family:'Inter,system-ui,sans-serif' } } }, tooltip: btt() }, scales: { x: { ticks: { color: tx2, font: { size: 9 } }, grid: { color: bd2 } }, y: { ticks: { color: tx2, font: { size: 9 } }, grid: { color: bd2 } } } } }
+        function bd() { const tx2 = gv('--tx2')||'#71717a'; const bd2 = gv('--bd')||'#e4e4e7'; return { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tx2, font: { size: 10, family:'Inter,system-ui,sans-serif' } } }, tooltip: btt() }, scales: { x: { ticks: { color: tx2, font: { size: 9 }, precision: 0 }, grid: { color: bd2 } }, y: { ticks: { color: tx2, font: { size: 9 }, precision: 0 }, grid: { color: bd2 } } } } }
         // Donut base opts (maintainAspectRatio:true keeps circle shape)
         function bdo() { return { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'right', labels: { color: gv('--tx2'), font: { size: 10 } } }, tooltip: btt() } } }
 
@@ -928,24 +1152,36 @@
             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--tx2').trim() || '#6b7280'; ctx.textAlign = 'center'; ctx.font = '12px Inter,sans-serif';
             ctx.fillText(msg, w / 2, h / 2);
         }
+        function setCC(id, c) { setCA(id, c.level, c.html) }
         function setCA(id, lvl, html) { const el = document.getElementById(id); if (!el) return; el.className = 'ca ca-' + lvl; el.innerHTML = html; el.style.display = 'block' }
 
         // ===== INIT =====
         function init() {
             const mx = R.reduce((m, r) => r.date_str > m ? r.date_str : m, '2000');
             const mn = R.reduce((m, r) => r.date_str < m ? r.date_str : m, '9999');
-            document.getElementById('rng').innerHTML = '<span class="rng-badge"><span class="rng-label">Data</span> ' + mn + ' → ' + mx + '</span>';
-            S.dt = mx; S.df = fd(ad(pd(mx), -13));
+            DATA_RANGE = mn + ' → ' + mx;
+            S.dt = mx; S.df = fd(ad(pd(mx), -(TH.default_days - 1)));
             document.getElementById('df').value = S.df;
             document.getElementById('dt').value = S.dt;
             const ts = [...new Set(R.map(r => r.team))].filter(Boolean).sort(sortTeams);
             const sel = document.getElementById('tf');
-            ts.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t + (TEAM_N[t] <= 3 ? ' (!)' : ''); sel.appendChild(o) });
+            ts.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t + (TEAM_N[t] <= TH.too_few_files ? ' (!)' : ''); sel.appendChild(o) });
             rAll();
         }
         function sp(d, b) { document.querySelectorAll('.pb').forEach(x => x.classList.remove('on')); b.classList.add('on'); const mx = R.reduce((m, r) => r.date_str > m ? r.date_str : m, '2000'); S.dt = mx; S.df = d === 0 ? R.reduce((m, r) => r.date_str < m ? r.date_str : m, '9999') : fd(ad(pd(mx), -(d - 1))); document.getElementById('df').value = S.df; document.getElementById('dt').value = S.dt; rAll() }
         function scr() { document.querySelectorAll('.pb').forEach(x => x.classList.remove('on')); S.df = document.getElementById('df').value; S.dt = document.getElementById('dt').value; rAll(300) }
-        function rst() { document.getElementById('tf').value = ''; S.team = ''; sp(14, document.querySelectorAll('.pb')[2]) }
+        // Reset bám theo ngưỡng "Default date range"; nếu nó không trùng nút nào thì
+        // đặt khoảng ngày rồi bỏ sáng hết các nút, chứ không sáng nhầm nút 14d.
+        function rst() {
+            document.getElementById('tf').value = ''; S.team = '';
+            const b = [...document.querySelectorAll('.pb')].find(x => +x.dataset.d === TH.default_days);
+            if (b) return sp(TH.default_days, b);
+            document.querySelectorAll('.pb').forEach(x => x.classList.remove('on'));
+            const mx = R.reduce((m, r) => r.date_str > m ? r.date_str : m, '2000');
+            S.dt = mx; S.df = fd(ad(pd(mx), -(TH.default_days - 1)));
+            document.getElementById('df').value = S.df; document.getElementById('dt').value = S.dt;
+            rAll();
+        }
         function toggleTheme() { const html = document.documentElement; const dark = html.dataset.theme === 'dark'; html.dataset.theme = dark ? '' : 'dark'; document.getElementById('th-light').classList.toggle('active', dark); document.getElementById('th-dark').classList.toggle('active', !dark); rAll() }
 
         // Compute a card's natural height from its children (ignores CSS Grid row stretch)
@@ -1046,6 +1282,181 @@
         // Initialize immediately since the containers are static
         initTableExpanders();
 
+        // Một khối duy nhất ở đầu trang: kết luận, bối cảnh dạng chip, rồi danh sách
+        // cảnh báo. Trước đây kết luận nằm trên header còn cảnh báo nằm dưới, nói hai
+        // nửa của cùng một câu chuyện ở hai chỗ cách nhau.
+        function chip(text, tone) {
+            return '<span class="chip' + (tone ? ' chip-' + tone : '') + '">' + esc(text) + '</span>';
+        }
+
+        function verdictBox(st) {
+            const v = CONCL.cVerdict(st);
+            const a = CONCL.cAlerts(st);
+            const level = v.level === 'ok' ? a.level : v.level;
+
+            const chips = [chip(S.df + ' → ' + S.dt), chip(plural(st.total, 'file', 'files'))];
+            if (S.team) chips.push(chip(S.team, 'team'));
+            if (st.untagged > 0) chips.push(chip(plural(st.untagged, 'untagged', 'untagged'), 'warn'));
+            if (st.waiting > 0) chips.push(chip(st.waiting + ' waiting', 'wait'));
+            if (DATA_RANGE) chips.push(chip('data ' + DATA_RANGE, 'quiet'));
+
+            const list = a.list.length && !(a.level === 'ok' && v.level === 'ok')
+                ? '<ul class="ab-list">' + a.list.map(x => '<li>' + x + '</li>').join('') + '</ul>'
+                : '';
+
+            return '<div class="ab lv-' + level + '">'
+                + '<div class="ab-top"><span class="verdict-dot lv-' + level + '"></span>'
+                + '<div><div class="verdict-lead">' + v.lead + '</div>'
+                + '<div class="verdict-detail">' + esc(v.detail) + '</div></div></div>'
+                + (list ? '<div class="ab-body">' + list + '</div>' : '')
+                + '<div class="ab-chips">' + chips.join('') + '</div></div>';
+        }
+
+        // ==================== KẾT LUẬN ====================
+        // Mọi câu đánh giá sinh ở đây, từ một gói số liệu chuẩn hoá. Dashboard truyền
+        // vào số thật, Settings truyền vào số mẫu — cùng một hàm nên hai bên không thể
+        // nói khác nhau, và câu xem trước khớp với chính biểu đồ ngay phía trên nó.
+
+        function statsFrom(rows, hours, untagged) {
+            const total = rows.reduce((a, t) => a + t.n, 0);
+            const reviewed = rows.reduce((a, t) => a + t.rev, 0);
+            const waiting = rows.reduce((a, t) => a + t.wait, 0);
+            const avg = hours.length ? hours.reduce((a, h) => a + h, 0) / hours.length : null;
+            return {
+                total, reviewed, waiting, hours, avg, untagged,
+                rate: total ? reviewed / total * 100 : 0,
+                waitPct: total ? waiting / total * 100 : 0,
+                teams: rows,
+            };
+        }
+
+        function realStats() {
+            const r = fl(R), v = fl(V);
+            const m = {};
+            r.forEach(x => {
+                const k = x.team || 'UNTAGGED';
+                if (!m[k]) m[k] = { name: k, n: 0, rev: 0, wait: 0 };
+                m[k].n++;
+                if (x.status_clean === 'reviewed') m[k].rev++;
+                else if (x.status_clean === 'confirmed') m[k].wait++;
+            });
+            const st = statsFrom(Object.values(m), v.map(x => x.review_hours).filter(h => h != null), UNTAGGED_COUNT);
+            st.recentPct = vizData('recentUnreviewed');
+            return st;
+        }
+
+        function sampleStats() {
+            const st = statsFrom(SAMPLE_TEAMS.map(t => ({ ...t })), SAMPLE_HOURS, 2);
+            st.recentPct = st.waitPct;
+            return st;
+        }
+
+        const judged = t => t.n > TH.too_few_files;
+        const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+
+        const CONCL = {
+            cDeadline(st) {
+                const D = TH.review_deadline_hours;
+                if (!st.hours.length) return { level: 'warn', html: 'No reviewed files in this period.' };
+                const late = st.hours.filter(h => h > D).length;
+                const pctLate = late / st.hours.length * 100;
+                if (pctLate > TH.unreviewed_high_pct) return { level: 'bad', html: '<b>' + pctLate.toFixed(0) + '% of files missed the ' + D + 'h deadline</b> → Serious. Usually too few reviewers, or files getting stuck somewhere. Fix this first.' };
+                if (pctLate > TH.unreviewed_medium_pct) return { level: 'warn', html: '<b>' + pctLate.toFixed(0) + '% missed the ' + D + 'h deadline</b> → Room to improve. Look at the slowest group for teams that are late again and again.' };
+                return { level: 'ok', html: '<b>' + (100 - pctLate).toFixed(0) + '% of files were reviewed within ' + D + 'h</b> → Good. Few files run late.' };
+            },
+
+            cAlerts(st) {
+                const D = TH.review_deadline_hours;
+                const out = [];
+                if (st.avg != null && st.avg > TH.slow_review_hours) {
+                    out.push('Average review time <b>' + st.avg.toFixed(1) + 'h</b> — ' + (st.avg / D).toFixed(1) + '× the ' + D + 'h review deadline.');
+                }
+                const low = st.teams.filter(t => judged(t) && t.rev / t.n < TH.low_rate_pct / 100).map(t => t.name);
+                if (low.length) out.push('Teams under ' + TH.low_rate_pct + '% review rate: <b>' + low.join(', ') + '</b> — needs unblocking.');
+                if (st.untagged > 0) out.push('<b>' + plural(st.untagged, 'UNTAGGED file', 'UNTAGGED files') + '</b> — missing team tag in the workflow, fix now.');
+                if (!out.length) {
+                    return { level: 'ok', list: ['Pipeline healthy — review rate <b>' + st.rate.toFixed(0) + '%</b>, average review <b>' + (st.avg == null ? 'n/a' : st.avg.toFixed(1) + 'h') + '</b>.'] };
+                }
+                return { level: 'bad', list: out };
+            },
+
+            cTeamRate(st) {
+                const rows = st.teams;
+                const below = rows.filter(t => judged(t) && t.rev / t.n < TH.low_rate_pct / 100).map(t => t.name);
+                if (below.length) return { level: 'bad', html: '<b>' + below.length + (below.length === 1 ? ' team is' : ' teams are') + ' under ' + TH.low_rate_pct + '% review rate:</b> ' + below.join(', ') + ' → Talk to those team leads, find what is blocking them, and agree a date to clear it.' };
+                const mid = rows.filter(t => judged(t) && t.rev / t.n < TH.good_rate_pct / 100).map(t => t.name);
+                if (mid.length) return { level: 'warn', html: '<b>' + mid.length + (mid.length === 1 ? ' team is' : ' teams are') + ' between ' + TH.low_rate_pct + '% and ' + TH.good_rate_pct + '%:</b> ' + mid.join(', ') + ' → Not urgent, but keep watching. Ask if they need more reviewers.' };
+                return { level: 'ok', html: 'Every team is at ' + TH.good_rate_pct + '% or above → Nothing to do. Keep the pace.' };
+            },
+
+            cTeamRateNote(st) {
+                const below = st.teams.filter(t => judged(t) && t.rev / t.n < TH.low_rate_pct / 100).map(t => t.name);
+                return below.length
+                    ? { level: 'bad', html: below.length + (below.length === 1 ? ' team' : ' teams') + ' under ' + TH.low_rate_pct + '% (enough data): ' + below.join(', ') }
+                    : { level: 'ok', html: 'Every team with enough data is at ' + TH.low_rate_pct + '% or above.' };
+            },
+
+            cRecent(st, span) {
+                const p = st.recentPct, s2 = span || 'the recent period';
+                if (p > TH.unreviewed_high_pct) return { level: 'bad', html: '<b>' + p.toFixed(0) + '% unreviewed in ' + s2 + '</b> → Work is piling up. Assign reviewers now.' };
+                if (p > TH.unreviewed_medium_pct) return { level: 'warn', html: '<b>' + p.toFixed(0) + '% unreviewed in ' + s2 + '</b> → Slowing down. Check which team is falling behind.' };
+                return { level: 'ok', html: 'Unreviewed rate low in ' + s2 + ' (<b>' + p.toFixed(0) + '%</b>) → Pipeline flowing well.' };
+            },
+
+            cWaiting(st) {
+                const p = st.waitPct;
+                if (p > TH.waiting_high_pct) return { level: 'bad', html: '<b>' + p.toFixed(0) + '% of all files are waiting for review</b> → Assign reviewers now to clear the pile.' };
+                if (p > TH.waiting_medium_pct) return { level: 'warn', html: '<b>' + p.toFixed(0) + '% are waiting for review</b> — a little high. Remind reviewers to pick files up today.' };
+                return { level: 'ok', html: 'Well balanced: only <b>' + p.toFixed(0) + '% are waiting for review</b>. Keep it up.' };
+            },
+
+            cTeamBacklog(st) {
+                const over = st.teams.filter(t => t.n && t.wait / t.n * 100 > TH.team_backlog_high_pct);
+                if (over.length) return { level: 'bad', html: '<b>' + over.length + (over.length === 1 ? ' team has' : ' teams have') + ' more than ' + TH.team_backlog_high_pct + '% of their files waiting:</b> ' + over.map(t => t.name).join(', ') + ' → Sit down with the team leads, find the cause, and agree what gets cleared this week.' };
+                if (st.waiting) return { level: 'warn', html: 'Some files are waiting, but every team is under ' + TH.team_backlog_high_pct + '% → Check again next week and step in if it keeps growing.' };
+                return { level: 'ok', html: 'Nothing waiting — every team is fully reviewed.' };
+            },
+
+            cWorkload(st) {
+                if (!st.total || !st.teams.length) return { level: 'ok', html: '' };
+                const top = st.teams.slice().sort((a, b) => b.n - a.n)[0];
+                const share = top.n / st.total * 100;
+                return share > TH.busiest_team_share_pct
+                    ? { level: 'warn', html: '<b>' + top.name + ' holds ' + share.toFixed(0) + '%</b> of all files → Lopsided. Consider moving some scope elsewhere or splitting the team.' }
+                    : { level: 'ok', html: 'Work is spread fairly evenly. Busiest team: <b>' + top.name + ' (' + share.toFixed(0) + '%)</b>.' };
+            },
+
+            cVerdict(st) {
+                const D = TH.review_deadline_hours;
+                if (!st.total) return { level: '', lead: 'No files in this period.', detail: 'Widen the date range, or clear the team filter.' };
+                let level = 'ok', lead;
+                if (st.waitPct > TH.waiting_high_pct) {
+                    level = 'bad'; lead = '<b>' + st.waiting + ' of ' + st.total + ' files</b> are still waiting for a reviewer.';
+                } else if (st.avg != null && st.avg > TH.slow_review_hours) {
+                    level = 'bad'; lead = 'Reviews are averaging <b>' + st.avg.toFixed(1) + 'h</b> against a ' + D + 'h deadline.';
+                } else if (st.rate < TH.low_rate_pct) {
+                    level = 'warn'; lead = 'Only <b>' + st.rate.toFixed(0) + '%</b> of files have been reviewed.';
+                } else if (st.waitPct > TH.waiting_medium_pct) {
+                    level = 'warn'; lead = '<b>' + plural(st.waiting, 'file', 'files') + '</b> are waiting for a reviewer.';
+                } else {
+                    lead = 'The pipeline is flowing — <b>' + st.rate.toFixed(0) + '%</b> reviewed.';
+                }
+                let detail;
+                if (level === 'ok') {
+                    detail = st.avg != null
+                        ? 'Reviews are taking ' + st.avg.toFixed(1) + 'h on average, within the ' + D + 'h deadline.'
+                        : 'Nothing reviewed yet in this period.';
+                } else if (st.avg != null && !lead.includes('averaging')) {
+                    const late = st.hours.filter(h => h > D).length;
+                    detail = late ? late + ' of ' + st.hours.length + ' finished reviews ran past the ' + D + 'h deadline.'
+                        : 'Every finished review met the ' + D + 'h deadline.';
+                } else {
+                    detail = plural(st.waiting, 'file', 'files') + ' still waiting, ' + st.reviewed + ' reviewed.';
+                }
+                return { level, lead, detail };
+            },
+        };
+
         // ==================== CEO ====================
         function rCEO() {
             const r = fl(R), v = fl(V);
@@ -1055,8 +1466,8 @@
             const avgRT = v.length ? avg(v.map(x => x.review_hours)).toFixed(1) : 'N/A';
             const hrsAll = v.map(x => x.review_hours);
             const medRT = v.length ? med(hrsAll).toFixed(1) : 'N/A';
-            const onTime4 = v.filter(x => x.review_hours <= 4).length;
-            const onTimeP = v.length ? pct(onTime4, v.length) : '0';
+            const onTime = v.filter(x => x.review_hours <= TH.review_deadline_hours).length;
+            const onTimeP = v.length ? pct(onTime, v.length) : '0';
             const unt = UNTAGGED_COUNT;
             const days = dr(pd(S.df), pd(S.dt));
             // Fix 4: true WoW — compare this week vs prev week
@@ -1068,44 +1479,37 @@
             const wowSign = parseFloat(wow) >= 0 ? '+' : '';
 
             const ts2 = {}; r.forEach(x => { if (!x.team) return; if (!ts2[x.team]) ts2[x.team] = { t: 0, r: 0 }; ts2[x.team].t++; if (x.status_clean === 'reviewed') ts2[x.team].r++ });
-            const alerts = [];
-            if (parseFloat(avgRT) > 8) alerts.push('Avg review time <b>' + avgRT + 'h</b> — ' + (parseFloat(avgRT) / 4).toFixed(1) + '× the 4h SLA target.');
-            const lowTeams = Object.entries(ts2).filter(([t, s]) => s.t >= 3 && s.r / s.t < 0.5).map(([t]) => t);
-            if (lowTeams.length) alerts.push('Teams with review rate <50%: <b>' + lowTeams.join(', ') + '</b> — needs unblocking.');
-            // Fix 8 untagged alert in CEO
-            if (unt > 0) alerts.push('<b>' + unt + ' UNTAGGED files</b> — missing team tag in workflow, fix immediately.');
-            document.getElementById('ceo-ins').innerHTML = alerts.length
-                ? '<div class="ab"><div class="ab-header">' + ICO.warn(16) + ' Alert</div>' + '<ul class="ab-list">' + alerts.map(a => '<li>' + a + '</li>').join('') + '</ul></div>'
-                : '<div class="ib">' + ICO.ok(16) + ' Pipeline healthy — review rate <b>' + rr + '%</b>, avg review <b>' + avgRT + 'h</b></div>';
+            const ST = realStats();
+            document.getElementById('ceo-ins').innerHTML = verdictBox(ST);
 
-            const rateColor = parseFloat(rr) >= 80 ? 'var(--rev)' : parseFloat(rr) >= 50 ? 'var(--conf)' : 'var(--pend)';
+            const rateColor = parseFloat(rr) >= TH.good_rate_pct ? 'var(--rev)' : parseFloat(rr) >= TH.low_rate_pct ? 'var(--conf)' : 'var(--pend)';
             const wowColor = parseFloat(wow) >= 0 ? 'var(--rev)' : 'var(--pend)';
             document.getElementById('ceo-k').innerHTML =
-                '<div class="kc prp" id="kpi-tot"><div class="kl">Total Files</div><div class="kv prp">' + tot + '</div><div class="kd"><div class="kdr"><span class="kdl"><span class="sd sr"></span>Reviewed</span><span class="kdv sg">' + rev + '</span></div><div class="kdr"><span class="kdl"><span class="sd sc"></span>Ready for Review</span><span class="kdv sw">' + conf + '</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>WoW (7d)</span><span class="tgt-val" style="color:' + wowColor + '">' + wowSign + wow + '%</span></div></div>' +
-                '<div class="kc grn" id="kpi-rev"><div class="kl">Reviewed</div><div class="kv grn">' + rev + '</div><div class="kd"><div class="kdr"><span class="kdl">Review rate</span><span class="kdv" style="color:' + rateColor + '">' + rr + '%</span></div><div class="kdr"><span class="kdl">Avg review time</span><span class="kdv">' + avgRT + 'h</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Target</span><span class="tgt-val">≥80% rate</span></div></div>' +
-                '<div class="kc ylw" id="kpi-conf"><div class="kl">Ready for Review</div><div class="kv ylw">' + conf + '</div><div class="kd"><div class="kdr"><span class="kdl">Awaiting reviewer</span><span class="kdv" style="color:var(--tx2)">→ review</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>SLA</span><span class="tgt-val">≤4h</span></div></div>' +
+                '<div class="kc prp" id="kpi-tot"><div class="kl">Total Files</div><div class="kv prp">' + tot + '</div><div class="kd"><div class="kdr"><span class="kdl"><span class="sd sr"></span>Reviewed</span><span class="kdv sg">' + rev + '</span></div><div class="kdr"><span class="kdl"><span class="sd sc"></span>Ready for Review</span><span class="kdv sw">' + conf + '</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>vs last week</span><span class="tgt-val" style="color:' + wowColor + '">' + wowSign + wow + '%</span></div></div>' +
+                '<div class="kc grn" id="kpi-rev"><div class="kl">Reviewed</div><div class="kv grn">' + rev + '</div><div class="kd"><div class="kdr"><span class="kdl">Review rate</span><span class="kdv" style="color:' + rateColor + '">' + rr + '%</span></div><div class="kdr"><span class="kdl">Avg review time</span><span class="kdv">' + avgRT + 'h</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Target</span><span class="tgt-val">≥' + TH.good_rate_pct + '% rate</span></div></div>' +
+                '<div class="kc ylw" id="kpi-conf"><div class="kl">Ready for Review</div><div class="kv ylw">' + conf + '</div><div class="kd"><div class="kdr"><span class="kdl">Awaiting reviewer</span><span class="kdv" style="color:var(--tx2)">→ review</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Deadline</span><span class="tgt-val">≤' + TH.review_deadline_hours + 'h</span></div></div>' +
                 '<div class="kc tel" id="kpi-avg"><div class="kl">Avg / Median</div><div class="kv tel">' + avgRT + 'h</div><div class="kd"><div class="kdr"><span class="kdl">Median</span><span class="kdv sw">' + medRT + 'h</span></div></div></div>' +
-                '<div class="kc grn" id="kpi-ontime"><div class="kl">On-time (≤4h)</div><div class="kv grn">' + onTimeP + '%</div><div class="kd"><div class="kdr"><span class="kdl">Within SLA</span><span class="kdv sw">' + onTime4 + ' / ' + v.length + '</span></div></div></div>';
+                '<div class="kc grn" id="kpi-ontime"><div class="kl">On time (≤' + TH.review_deadline_hours + 'h)</div><div class="kv grn">' + onTimeP + '%</div><div class="kd"><div class="kdr"><span class="kdl">Met the deadline</span><span class="kdv sw">' + onTime + ' / ' + v.length + '</span></div></div></div>';
             // Attach KPI tooltips
             kpiTT('kpi-tot',
                 '<b>Total Files</b>'
                 + '<div class="tr"><span class="tl2">Period</span><span class="tv">' + S.df + ' → ' + S.dt + '</span></div>'
                 + '<div class="tr"><span class="tl2">Reviewed</span><span class="tv">' + rev + '</span></div>'
                 + '<div class="tr"><span class="tl2">Ready for Review</span><span class="tv">' + conf + '</span></div>'
-                + ttDef('WoW (7d)', 'Week-over-Week change: compares this week\'s total file count to the prior 7-day window. Positive % = more files coming in; negative = volume dropping.')
+                + ttDef('vs last week', 'Compares the last 7 days of files to the 7 days before that. Positive % = more files coming in; negative = volume dropping.')
             );
             kpiTT('kpi-rev',
                 '<b>Reviewed</b>'
                 + '<div class="tr"><span class="tl2">Review rate</span><span class="tv">' + rr + '%</span></div>'
                 + '<div class="tr"><span class="tl2">Avg review time</span><span class="tv">' + avgRT + 'h</span></div>'
-                + ttDef('Review Rate', '% of all files that reached Reviewed status. Target ≥80%. Below 50% = pipeline bottleneck — reviewers can\'t keep up.')
-                + ttDef('Avg Review Time', 'Mean hours from file logged to review complete. Target ≤4h. Outliers skew this up — see Median (P50) for a fairer view.')
+                + ttDef('Review rate', '% of all files that reached Reviewed. Target ≥' + TH.good_rate_pct + '%. Below ' + TH.low_rate_pct + '% means reviewers cannot keep up.')
+                + ttDef('Average review time', 'Mean hours from the meeting to the finished review. Target ≤' + TH.review_deadline_hours + 'h. A few very slow files pull this up — the median is a fairer view.')
             );
             kpiTT('kpi-conf',
                 '<b>Ready for Review</b>'
                 + '<div class="tr"><span class="tl2">Awaiting reviewer</span><span class="tv">' + conf + ' files</span></div>'
-                + ttDef('Ready for Review', 'Files confirmed and waiting for a reviewer to be assigned. Each should be claimed within 4h (SLA). Growing backlog = reviewer shortage.')
-                + ttDef('SLA', 'Service Level Agreement — each file must be reviewed within 4h of confirmation. Every file here is an active SLA clock.')
+                + ttDef('Ready for review', 'Files confirmed and waiting for a reviewer. Each one should be picked up within ' + TH.review_deadline_hours + 'h. A growing pile means too few reviewers.')
+                + ttDef('Review deadline', 'Each file should be reviewed within ' + TH.review_deadline_hours + 'h of the meeting. Every file here has that clock running. You can change this in Settings.')
             );
 
             // Stacked bar by day
@@ -1120,13 +1524,13 @@
             // Review rate by team — Fix 1: small-n badge in labels
             const teams = Object.keys(ts2).sort((a, b) => (ts2[b].r / ts2[b].t) - (ts2[a].r / ts2[a].t));
             const o2 = bd(); o2.indexAxis = 'y'; o2.plugins.legend = { display: false };
-            o2.plugins.tooltip = { ...btt(), callbacks: { label: i => { const t = teams[i.dataIndex]; const s = ts2[t]; const n = TEAM_N[t] || s.t; const warn = n <= 3 ? '  (!) Low data — n=' + n + ' files' : ''; const rate = parseFloat(i.raw); const status = rate >= 80 ? '✓ On target' : rate >= 50 ? '~ Watch' : '! Below target'; return ['◆ Rate: ' + i.raw + '%  →  ' + status, '  Reviewed: ' + s.r + ' / ' + s.t + ' files', '  Backlog: ' + (s.t - s.r) + ' files' + warn] } } };
+            o2.plugins.tooltip = { ...btt(), callbacks: { label: i => { const t = teams[i.dataIndex]; const s = ts2[t]; const n = TEAM_N[t] || s.t; const warn = n <= TH.too_few_files ? '  (!) Low data — n=' + n + ' files' : ''; const rate = parseFloat(i.raw); const status = rate >= TH.good_rate_pct ? '✓ On target' : rate >= TH.low_rate_pct ? '~ Watch' : '! Below target'; return ['◆ Rate: ' + i.raw + '%  →  ' + status, '  Reviewed: ' + s.r + ' / ' + s.t + ' files', '  Backlog: ' + (s.t - s.r) + ' files' + warn] } } };
             o2.scales.x = { ...bd().scales.x, max: 100 };
             // add (n=X) to labels for small teams
-            const teamLabels = teams.map(t => { const n = TEAM_N[t] || ts2[t].t; return n <= 5 ? t + ' (n=' + n + ')' : t });
-            dc('ceo-c2'); CH['ceo-c2'] = new Chart(document.getElementById('ceo-c2'), { type: 'bar', data: { labels: teamLabels, datasets: [{ data: teams.map(t => pct(ts2[t].r, ts2[t].t)), backgroundColor: teams.map(t => { const rate = ts2[t].r / ts2[t].t; return rate >= .8 ? gv('--rev') : rate >= .5 ? gv('--conf') : gv('--pend') }), borderRadius: 4, borderSkipped: false }] }, options: o2 });
-            const under50 = teams.filter(t => ts2[t].r / ts2[t].t < 0.5 && (TEAM_N[t] || ts2[t].t) > 3);
-            document.getElementById('cn-ceo-c2').innerHTML = under50.length ? ICO.warn() + ' ' + under50.length + ' team <50% rate (sufficient data): ' + under50.join(', ') : ICO.ok() + ' All teams with sufficient data ≥50% rate.';
+            const teamLabels = teams.map(t => { const n = TEAM_N[t] || ts2[t].t; return n <= TH.show_count_below ? t + ' (n=' + n + ')' : t });
+            dc('ceo-c2'); CH['ceo-c2'] = new Chart(document.getElementById('ceo-c2'), { type: 'bar', data: { labels: teamLabels, datasets: [{ data: teams.map(t => pct(ts2[t].r, ts2[t].t)), backgroundColor: teams.map(t => { const rate = ts2[t].r / ts2[t].t; return rate >= TH.good_rate_pct / 100 ? gv('--rev') : rate >= TH.low_rate_pct / 100 ? gv('--conf') : gv('--pend') }), borderRadius: 4, borderSkipped: false }] }, options: o2 });
+            const note = CONCL.cTeamRateNote(ST);
+            document.getElementById('cn-ceo-c2').innerHTML = (note.level === 'ok' ? ICO.ok() : ICO.warn()) + ' ' + note.html;
 
             // Pipeline donut
             const o3 = { ...bdo(), plugins: { ...bdo().plugins, tooltip: { ...btt(), callbacks: { label: i => { const total = rev + conf; return i.label + ': ' + i.raw + ' (' + pct(i.raw, total) + '%)' } } } } };
@@ -1135,32 +1539,25 @@
             // Backlog table
             const bl = Object.entries(ts2).map(([tag, s]) => ({ tag, c: r.filter(x => x.team === tag && x.status_clean === 'confirmed').length, t: s.t })).filter(x => x.c > 0).sort((a, b) => b.c - a.c);
             if (!bl.length) { document.getElementById('ceo-t1').innerHTML = '<div class="empty"><div class="ei">' + ICO.ok(40) + '</div><p>No backlog in this period.</p></div>' }
-            else document.getElementById('ceo-t1').innerHTML = '<table class="dt"><thead><tr><th>Team</th><th title="Confirmed, awaiting reviewer">Ready for Review</th><th title="C/Total">Backlog%</th></tr></thead><tbody>' + bl.map(x => { const bpct = pct(x.c, x.t); const n = TEAM_N[x.tag] || x.t; return '<tr title="' + x.tag + ': ' + x.c + ' ready for review, total ' + x.t + '"><td><span class="tc2">' + x.tag + '</span>' + (n <= 3 ? '<span class="sn-warn"> ' + ICO.warn(9) + 'n=' + n + '</span>' : '') + '</td><td class="sw">' + x.c + '</td><td style="font-weight:600;color:' + (parseFloat(bpct) > 50 ? 'var(--pend)' : 'var(--conf)') + '">' + bpct + '%</td></tr>' }).join('') + '</tbody></table>';
+            else document.getElementById('ceo-t1').innerHTML = '<table class="dt"><thead><tr><th>Team</th><th title="Confirmed, waiting for a reviewer">Ready for review</th><th title="Waiting as a share of the team\'s files">Waiting %</th></tr></thead><tbody>' + bl.map(x => { const bpct = pct(x.c, x.t); const n = TEAM_N[x.tag] || x.t; return '<tr title="' + x.tag + ': ' + x.c + ' ready for review, total ' + x.t + '"><td><span class="tc2">' + x.tag + '</span>' + (n <= TH.too_few_files ? '<span class="sn-warn"> ' + ICO.warn(9) + 'n=' + n + '</span>' : '') + '</td><td class="sw">' + x.c + '</td><td style="font-weight:600;color:' + (parseFloat(bpct) > TH.team_backlog_high_pct ? 'var(--pend)' : 'var(--conf)') + '">' + bpct + '%</td></tr>' }).join('') + '</tbody></table>';
 
             // === Chart Actions ===
             // c1: bucket gần nhất có tỉ lệ chưa review cao không
             const last3 = B.keys.slice(-3); const span = 'last 3 ' + B.unit.toLowerCase() + 's';
             const l3u = last3.reduce((s, k) => (byD[k]?.confirmed || 0) + s, 0), l3t = last3.reduce((s, k) => (byD[k]?.reviewed || 0) + (byD[k]?.confirmed || 0) + s, 0);
             const l3pct = l3t > 0 ? (l3u / l3t * 100) : 0;
-            if (l3pct > 40) setCA('ca-ceo-c1', 'bad', '<b>' + l3pct.toFixed(0) + '% unreviewed in ' + span + '</b> → Review backlog building. Assign reviewers now.');
-            else if (l3pct > 20) setCA('ca-ceo-c1', 'warn', '<b>' + l3pct.toFixed(0) + '% unreviewed in ' + span + '</b> → Slowing down. Check which team is falling behind on reviews.');
-            else setCA('ca-ceo-c1', 'ok', 'Unreviewed rate low in ' + span + ' (<b>' + l3pct.toFixed(0) + '%</b>) → Pipeline flowing well.');
+            setCC('ca-ceo-c1', CONCL.cRecent({ recentPct: l3pct }, span));
 
             // c2: Review rate by team
-            if (under50.length) setCA('ca-ceo-c2', 'bad', '<b>' + under50.length + ' team review rate <50%:</b> ' + under50.join(', ') + ' → Meet those team leads, find the blocker, set a 48h review deadline.');
-            else { const under80 = teams.filter(t => ts2[t].r / ts2[t].t < 0.8 && (TEAM_N[t] || ts2[t].t) > 3); if (under80.length) setCA('ca-ceo-c2', 'warn', '<b>' + under80.length + ' teams at 50–80% rate:</b> ' + under80.join(', ') + ' → Not critical yet, but monitor. Ask if they need more reviewers.'); else setCA('ca-ceo-c2', 'ok', 'All teams ≥80% review rate → No action needed. Maintain pace.') }
+            setCC('ca-ceo-c2', CONCL.cTeamRate(ST));
 
             // c3: Pipeline donut
-            const confPct = tot > 0 ? (conf / tot * 100) : 0;
-            if (confPct > 30) setCA('ca-ceo-c3', 'bad', '<b>' + confPct.toFixed(0) + '% of pipeline awaiting review</b> → Assign reviewers now to clear backlog.');
-            else if (confPct > 15) setCA('ca-ceo-c3', 'warn', '<b>' + confPct.toFixed(0) + '% awaiting review</b> — slightly high. Remind reviewers to pick up files today.');
-            else setCA('ca-ceo-c3', 'ok', 'Pipeline balanced: only <b>' + confPct.toFixed(0) + '% awaiting review</b>. Keep it up.');
+            setCC('ca-ceo-c3', CONCL.cWaiting(ST));
 
             // t1: Backlog table
-            const bl50 = bl.filter(x => pct(x.p + x.c, x.t) > 50);
-            if (bl50.length) setCA('ca-ceo-t1', 'bad', '<b>' + bl50.length + ' teams backlog >50%:</b> ' + bl50.map(x => x.tag).join(', ') + ' → Quick sync with team leads to find root cause and set a clear target to clear backlog this week.');
-            else if (bl.length) setCA('ca-ceo-t1', 'warn', 'Backlog exists but all teams below 50% → Monitor weekly. Intervene if it grows for 2 consecutive weeks.');
-            else setCA('ca-ceo-t1', 'ok', 'No backlog — all teams fully reviewed. Excellent!');
+            // x.p không tồn tại trên các phần tử của bl, nên biểu thức cũ luôn ra NaN và
+            // nhánh cảnh báo này chưa bao giờ chạy. Tỉ lệ đúng là số file đang chờ trên tổng.
+            setCC('ca-ceo-t1', CONCL.cTeamBacklog(ST));
         }
 
 
@@ -1170,15 +1567,23 @@
         function rDist() {
             const v = fl(V);
             if (!v.length) { dc('cto-c2'); setCA('ca-cto-c2', 'warn', 'No reviewed files in this period.'); return }
-            const bk = { '<1h': 0, '1-4h': 0, '4-24h': 0, '>24h': 0 };
-            v.forEach(x => { const h = x.review_hours; if (h < 1) bk['<1h']++; else if (h <= 4) bk['1-4h']++; else if (h <= 24) bk['4-24h']++; else bk['>24h']++ });
-            const o2 = { ...bdo(), plugins: { ...bdo().plugins, tooltip: { ...btt(), callbacks: { label: i => [i.label + ': ' + i.raw + ' files', pct(i.raw, v.length) + '% of reviewed', i.dataIndex <= 2 ? 'Within SLA' : 'Outside SLA'] } } } };
-            dc('cto-c2'); CH['cto-c2'] = new Chart(document.getElementById('cto-c2'), { type: 'doughnut', data: { labels: Object.keys(bk), datasets: [{ data: Object.values(bk), backgroundColor: ramp4(), borderWidth: 2, borderColor: gv('--s1') }] }, options: o2 });
+            const g = TH.review_time_groups;
+            const labels = ['<' + g[0] + 'h', g[0] + '-' + g[1] + 'h', g[1] + '-' + g[2] + 'h', '>' + g[2] + 'h'];
+            const counts = [0, 0, 0, 0];
+            v.forEach(x => { const h = x.review_hours; counts[h < g[0] ? 0 : h <= g[1] ? 1 : h <= g[2] ? 2 : 3]++ });
+            // Một nhóm chỉ được gọi là đúng hạn khi cả khoảng của nó nằm trong deadline;
+            // deadline rơi vào giữa nhóm thì phải nói thẳng là nhóm đó lẫn lộn.
+            const D = TH.review_deadline_hours;
+            const bounds = [[0, g[0]], [g[0], g[1]], [g[1], g[2]], [g[2], Infinity]];
+            const verdict = i => bounds[i][1] <= D ? 'On time'
+                : bounds[i][0] >= D ? 'Past the deadline'
+                : 'The ' + D + 'h deadline falls inside this group';
+            const o2 = { ...bdo(), plugins: { ...bdo().plugins, tooltip: { ...btt(), callbacks: { label: i => [i.label + ': ' + i.raw + ' files', pct(i.raw, v.length) + '% of reviewed', verdict(i.dataIndex)] } } } };
+            dc('cto-c2'); CH['cto-c2'] = new Chart(document.getElementById('cto-c2'), { type: 'doughnut', data: { labels, datasets: [{ data: counts, backgroundColor: ramp4(), borderWidth: 2, borderColor: gv('--s1') }] }, options: o2 });
 
-            const overSLA = v.filter(x => x.review_hours > 24).length; const overPct = v.length > 0 ? (overSLA / v.length * 100) : 0;
-            if (overPct > 40) setCA('ca-cto-c2', 'bad', '<b>' + overPct.toFixed(0) + '% files outside SLA (>24h)</b> → Critical. Root cause: too few reviewers or process blockage. Fix immediately.');
-            else if (overPct > 20) setCA('ca-cto-c2', 'warn', '<b>' + overPct.toFixed(0) + '% outside SLA</b> — needs improvement. Check "24-72h" group for teams with recurring delays.');
-            else setCA('ca-cto-c2', 'ok', '<b>' + (100 - overPct).toFixed(0) + '% of files reviewed within 24h SLA</b> → Good. Few files are late.');
+            // Một định nghĩa "trễ" duy nhất: vượt review deadline. Bốn nhóm ở trên chỉ là
+            // cách chia để nhìn, không phải định nghĩa thứ hai.
+            setCC('ca-cto-c2', CONCL.cDeadline(realStats()));
         }
 
         // ── File Distribution by Team (mang từ tab COO, dạng cột) ────
@@ -1195,11 +1600,7 @@
             o3.plugins.tooltip = { ...btt(), callbacks: { label: i => [i.raw + ' files', pct(i.raw, tot) + '% of total'] } };
             dc('coo-c3'); CH['coo-c3'] = new Chart(document.getElementById('coo-c3'), { type: 'bar', data: { labels: tms.map(x => x[0]), datasets: [{ label: 'Files', data: tms.map(x => x[1]), backgroundColor: tms.map(x => tc(x[0])), borderWidth: 0, borderRadius: 4 }] }, options: o3 });
 
-            if (tms.length) {
-                const top1Share = tms[0][1] / tot * 100;
-                if (top1Share > 40) setCA('ca-coo-c3', 'warn', '<b>"' + tms[0][0] + '" is ' + top1Share.toFixed(0) + '%</b> of total workload → Imbalanced. Consider redistributing scope or splitting this team.');
-                else setCA('ca-coo-c3', 'ok', 'Workload relatively balanced. Largest team: <b>"' + tms[0][0] + '" (' + top1Share.toFixed(0) + '%)</b>.')
-            }
+            if (tms.length) setCC('ca-coo-c3', CONCL.cWorkload(realStats()));
         }
 
         // ── Team Activity Heatmap (mang từ tab PM) ───────────────────
@@ -1233,16 +1634,24 @@
         // ==================== PM ====================
 
 
-        function sl(sla, outliers) {
-            let a = [];
-            if (sla < 60) a.push('<b>Critical SLA Breach:</b> Below 60%. Processes are broken.');
-            else if (sla < 80) a.push('<b>Warning:</b> SLA ' + sla.toFixed(1) + '% is under 80% target.');
-            if (outliers > 0) a.push('<b>' + outliers + ' Severe Outliers:</b> Files took >3 days.');
-            if (!a.length) return '<div class="ca ca-ok">' + ICO.ok() + ' SLA compliance is healthy.</div>';
-            return '<div class="ca ca-bad">' + ICO.alert(16) + ' ' + a.join('<br>') + '</div>';
+        // Header trả lời thẳng câu hỏi "pipeline có chạy không" thay vì hỏi rồi bỏ đó.
+        // Chỉ nói một điều — điều tệ nhất đang đúng — vì đọc lướt chỉ kịp một dòng.
+        // Trạng thái đang tải và lỗi dùng chung chỗ với kết luận, vì đó là chỗ người
+        // dùng đang nhìn để biết tình hình.
+        function setVerdict(level, lead, detail) {
+            document.getElementById('ceo-ins').innerHTML =
+                '<div class="ab lv-' + (level || 'ok') + '"><div class="ab-top">'
+                + '<span class="verdict-dot' + (level ? ' lv-' + level : '') + '"></span>'
+                + '<div><div class="verdict-lead">' + lead + '</div>'
+                + '<div class="verdict-detail">' + esc(detail) + '</div></div></div></div>';
+        }
+
+        function rHeader() {
+            document.querySelectorAll('[data-th]').forEach(el => { el.textContent = TH[el.dataset.th] });
         }
 
         function rAll() {
+            rHeader();
             rCEO();
             rDist();
             rFileDist();
@@ -1250,6 +1659,602 @@
             setTimeout(matchCardHeights, 0);
         }
 
+
+        // ==================== SETTINGS PANEL ====================
+        // TH là bộ ngưỡng đang vẽ ra màn hình. Sửa một ô là gán thẳng vào TH rồi vẽ lại
+        // ngay, nên người dùng thấy trước hậu quả của con số mới trước khi bấm Save.
+        // Bấm Cancel thì chép TH_SAVED đè lại.
+
+        function cfgOpen() {
+            document.getElementById('cfg').classList.add('active');
+            document.getElementById('cfg-back').classList.add('active');
+            cfgRender();
+        }
+
+        function cfgClose() {
+            if (cfgDirty()) { cfgCancel() }
+            document.getElementById('cfg').classList.remove('active');
+            document.getElementById('cfg-back').classList.remove('active');
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && document.getElementById('cfg').classList.contains('active')) cfgClose();
+        });
+
+        function cfgDirty() {
+            return TH_SCHEMA.length && JSON.stringify(TH) !== JSON.stringify(TH_SAVED);
+        }
+
+        const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        function cfgRender() {
+            const body = document.getElementById('cfg-body');
+            const foot = document.getElementById('cfg-foot');
+
+            if (TH_LOCKED && !TH_TOKEN) {
+                body.innerHTML =
+                    '<p class="cfg-note">These thresholds decide when the dashboard calls a number good or bad. Enter the password to change them.</p>'
+                    + '<div class="cfg-lock">'
+                    + pwInput('cfg-pass', 'Password', 'current-password')
+                    + '<div class="cfg-err" id="cfg-lock-err"></div></div>';
+                foot.innerHTML = '<button class="cfg-btn pri" onclick="cfgUnlock()">Unlock</button>'
+                    + '<span class="cfg-msg" id="cfg-msg"></span>';
+                const input = document.getElementById('cfg-pass');
+                input.focus();
+                input.addEventListener('keydown', e => { if (e.key === 'Enter') cfgUnlock() });
+                return;
+            }
+
+            if (!TH_SCHEMA.length) {
+                body.innerHTML = '<p class="cfg-note">Loading settings…</p>';
+                foot.innerHTML = '';
+                return;
+            }
+
+            const readOnly = !TH_LOCKED;
+            body.innerHTML =
+                (readOnly
+                    ? '<p class="cfg-note">These are the thresholds in use. They are read-only because no <code>CONFIG_PASSWORD</code> is set on the server — add that secret and restart to make them editable.</p>'
+                    : '<p class="cfg-note">Change a number and the dashboard behind this panel redraws straight away. Nothing is stored until you press Save.'
+                      + (cfgSampling() ? ' Charts marked <i>example data</i> use a stand-in set, because the filters you have on leave too few rows to show a threshold against.' : '')
+                      + '</p>')
+                + TH_SCHEMA.map(g =>
+                    '<details class="cfg-grp"' + (g.collapsed ? '' : ' open') + '>'
+                    + '<summary>' + esc(g.label) + '</summary>'
+                    + g.fields.map(f => cfgField(f, readOnly)).join('')
+                    + '</details>').join('')
+                + (readOnly ? '' : cfgPasswordBlock());
+
+            foot.innerHTML = readOnly
+                ? '<span class="cfg-msg">Read-only</span>'
+                : '<button class="cfg-btn pri" onclick="cfgSave()">Save</button>'
+                + '<button class="cfg-btn" onclick="cfgCancel()">Cancel</button>'
+                + '<button class="cfg-btn" onclick="cfgReset()">Reset to defaults</button>'
+                + '<span class="cfg-msg" id="cfg-msg"></span>';
+        }
+
+        // ── Số liệu cho phần minh hoạ ───────────────────────────
+        // Lấy từ chính dữ liệu đang lọc trên dashboard chứ không phải số bịa: câu
+        // "sẽ gắn cờ 3 trong 9 team của bạn" quyết định được, còn biểu đồ bịa thì không.
+        function vizTeams() {
+            const r = fl(R);
+            const m = {};
+            r.forEach(x => {
+                if (!x.team) return;
+                if (!m[x.team]) m[x.team] = { name: x.team, n: 0, rev: 0, wait: 0 };
+                m[x.team].n++;
+                if (x.status_clean === 'reviewed') m[x.team].rev++;
+                if (x.status_clean === 'confirmed') m[x.team].wait++;
+            });
+            return { list: Object.values(m), total: r.length };
+        }
+
+        function vizData(source) {
+            if (source === 'hours') return fl(V).map(x => x.review_hours).filter(h => h != null);
+
+            if (source === 'days' || source === 'buckets') return dr(pd(S.df), pd(S.dt)).length;
+
+            if (source === 'waitingShare') {
+                const r = fl(R);
+                const wait = r.filter(x => x.status_clean === 'confirmed').length;
+                return r.length ? wait / r.length * 100 : 0;
+            }
+
+            if (source === 'recentUnreviewed') {
+                const r = fl(R);
+                const B = timeBuckets(dr(pd(S.df), pd(S.dt)));
+                const by = {}; B.keys.forEach(k => { by[k] = { rev: 0, conf: 0 } });
+                r.forEach(x => { const k = B.keyOf(x.date_str); if (by[k]) { if (x.status_clean === 'reviewed') by[k].rev++; else if (x.status_clean === 'confirmed') by[k].conf++ } });
+                const last = B.keys.slice(-3);
+                const u = last.reduce((a, k) => a + (by[k]?.conf || 0), 0);
+                const t = last.reduce((a, k) => a + (by[k]?.conf || 0) + (by[k]?.rev || 0), 0);
+                return t ? u / t * 100 : 0;
+            }
+
+            const { list, total } = vizTeams();
+            const pick = {
+                teamRate: t => t.n ? t.rev / t.n * 100 : 0,
+                teamCount: t => t.n,
+                teamWaiting: t => t.n ? t.wait / t.n * 100 : 0,
+                teamShare: t => total ? t.n / total * 100 : 0,
+            }[source];
+            if (!pick) return [];
+            return list.map(t => ({ name: t.name, value: pick(t), n: t.n }))
+                .sort((a, b) => b.value - a.value);
+        }
+
+        // Khi bộ lọc hiện tại có quá ít dòng, hình vẽ bằng dữ liệu thật không dạy được
+        // gì (một chấm trên trục thì không thấy được ngưỡng cắt ở đâu). Lúc đó chuyển
+        // sang bộ mẫu và nói rõ là mẫu, chứ không để người dùng tưởng đó là số của họ.
+        const SAMPLE_HOURS = [0.4, 0.7, 1.1, 1.4, 1.9, 2.3, 2.8, 3.3, 3.8, 4.4, 5.1, 6.2,
+            7.4, 8.9, 10.5, 13, 16, 19, 24, 29, 38, 52, 71, 96, 140];
+        const SAMPLE_TEAMS = [
+            { name: 'Investment', n: 24, rev: 22, wait: 2 },
+            { name: 'Research', n: 18, rev: 14, wait: 4 },
+            { name: 'Platform', n: 15, rev: 10, wait: 5 },
+            { name: 'Legal', n: 11, rev: 5, wait: 6 },
+            { name: 'Operations', n: 9, rev: 3, wait: 6 },
+            { name: 'Comms', n: 2, rev: 0, wait: 2 },
+        ];
+
+        function sampleRows(source) {
+            const total = SAMPLE_TEAMS.reduce((a, t) => a + t.n, 0);
+            const pick = {
+                teamRate: t => t.rev / t.n * 100,
+                teamCount: t => t.n,
+                teamWaiting: t => t.wait / t.n * 100,
+                teamShare: t => t.n / total * 100,
+            }[source];
+            return SAMPLE_TEAMS.map(t => ({ name: t.name, value: pick(t), n: t.n }))
+                .sort((a, b) => b.value - a.value);
+        }
+
+        function vizSourced(source) {
+            const real = vizData(source);
+            if (source === 'hours') {
+                return real.length >= 6 ? { data: real, sample: false } : { data: SAMPLE_HOURS, sample: true };
+            }
+            if (['teamRate', 'teamCount', 'teamWaiting', 'teamShare'].includes(source)) {
+                return real.length >= 3 ? { data: real, sample: false } : { data: sampleRows(source), sample: true };
+            }
+            // Dải zones cũng phải theo bộ mẫu khi các hình khác đang dùng mẫu, nếu không
+            // ghim "now" và câu kết luận ngay dưới nó sẽ nói hai con số khác nhau.
+            if (source === 'recentUnreviewed' || source === 'waitingShare') {
+                if (!cfgSampling()) return { data: real, sample: false };
+                const st = sampleStats();
+                return { data: source === 'waitingShare' ? st.waitPct : st.recentPct, sample: true };
+            }
+            return { data: real, sample: false };
+        }
+
+        // ── Bốn khối hình dùng chung ────────────────────────────
+        const VW = 600;
+        const vcol = n => gv(n) || '#888';
+        const svg = (h, inner) => '<svg viewBox="0 0 ' + VW + ' ' + h + '" style="width:100%;height:auto" role="img">' + inner + '</svg>';
+        const vline = (x, c, w) => '<line x1="' + x.toFixed(1) + '" y1="0" x2="' + x.toFixed(1) + '" y2="100%" stroke="' + c + '" stroke-width="' + (w || 2) + '"/>';
+
+        // Giờ review trải từ vài phút tới hàng trăm giờ, nên trục tuyến tính dồn hết
+        // vào mép trái. Log giữ được cả nhóm nhanh lẫn nhóm chậm cùng đọc được.
+        const lg = h => Math.log10(1 + Math.max(0, h));
+
+        function vizDots(f, values) {
+            const L = 8, R2 = VW - 8, H = 62;
+            if (!values.length) return '<p class="cfg-read">No reviewed files in the current filter — pick a wider date range to see this.</p>';
+            const cuts = f.parts.map(partValue);
+            const top = Math.max(...values, ...cuts) * 1.15;
+            const x = h => L + lg(h) / lg(top) * (R2 - L);
+            const band = h => { let i = 0; while (i < cuts.length && h > cuts[i]) i++; return i };
+            const shades = cuts.length > 1 ? ramp4() : [vcol('--rev'), vcol('--pend')];
+
+            const dots = values.map((h, i) => {
+                const jitter = 12 + ((i * 37) % 22);
+                return '<circle cx="' + x(h).toFixed(1) + '" cy="' + jitter + '" r="3" fill="' + shades[Math.min(band(h), shades.length - 1)] + '" opacity=".75"/>';
+            }).join('');
+
+            const marks = cuts.map(c => '<line x1="' + x(c).toFixed(1) + '" y1="4" x2="' + x(c).toFixed(1) + '" y2="40" stroke="' + vcol('--tx') + '" stroke-width="1.5"/>'
+                + '<text class="cfg-vlabel" x="' + x(c).toFixed(1) + '" y="52" text-anchor="middle">' + c + 'h</text>').join('');
+
+            // Nhãn trục nào rơi sát nhãn ngưỡng thì bỏ: hai chữ chồng lên nhau đọc
+            // còn tệ hơn là thiếu một mốc.
+            const ticks = [1, 4, 12, 24, 72, 168]
+                .filter(t => t < top && cuts.every(c => Math.abs(x(t) - x(c)) > 20))
+                .map(t => '<text class="cfg-vlabel" x="' + x(t).toFixed(1) + '" y="62" text-anchor="middle" opacity=".55">' + t + 'h</text>').join('');
+
+            return svg(H, '<line x1="' + L + '" y1="40" x2="' + R2 + '" y2="40" stroke="' + vcol('--bd') + '"/>' + dots + marks + ticks);
+        }
+
+        function vizBars(f, rows) {
+            if (!rows.length) return '<p class="cfg-read">No teams in the current filter.</p>';
+            const shown = rows.slice(0, 8);
+            const isPct = f.unit === '%';
+            const top = isPct ? 100 : Math.max(...shown.map(r => r.value), ...f.parts.map(partValue)) * 1.1;
+            const L = 86, R2 = VW - 52, rowH = 20, H = shown.length * rowH + 16;
+            const x = v => L + Math.min(v / top, 1) * (R2 - L);
+            const cuts = f.parts.map(p => ({ key: p.key, v: partValue(p) }));
+
+            // Nhiều file không phải chuyện xấu — vượt vạch ở đây nghĩa là đủ dữ liệu để
+            // đánh giá, nên không được tô đỏ như các ngưỡng còn lại.
+            const hi = Math.max(...cuts.map(c => c.v)), lo = Math.min(...cuts.map(c => c.v));
+            const colourOf = v => {
+                if (f.viz.source === 'teamCount') return v > hi ? vcol('--rev') : vcol('--tx2');
+                if (cuts.length > 1) return v >= hi ? vcol('--rev') : v < lo ? vcol('--pend') : vcol('--conf');
+                return v > hi ? vcol('--pend') : vcol('--rev');
+            };
+
+            const bars = shown.map((r, i) => {
+                const y = i * rowH + 4;
+                return '<text class="cfg-vname" x="0" y="' + (y + 11) + '">' + esc(r.name.slice(0, 12)) + '</text>'
+                    + '<rect x="' + L + '" y="' + y + '" width="' + Math.max(0, x(r.value) - L).toFixed(1) + '" height="13" rx="3" fill="' + colourOf(r.value) + '"/>'
+                    + '<text class="cfg-vlabel" x="' + VW + '" y="' + (y + 11) + '" text-anchor="end">' + (isPct ? r.value.toFixed(0) + '%' : r.value) + '</text>';
+            }).join('');
+
+            const marks = cuts.map(c => '<line x1="' + x(c.v).toFixed(1) + '" y1="0" x2="' + x(c.v).toFixed(1) + '" y2="' + (H - 14) + '" stroke="' + vcol('--tx') + '" stroke-width="1.5" stroke-dasharray="3 2"/>'
+                + '<text class="cfg-vlabel" x="' + x(c.v).toFixed(1) + '" y="' + (H - 3) + '" text-anchor="middle">' + c.v + (isPct ? '%' : '') + '</text>').join('');
+
+            return svg(H, bars + marks);
+        }
+
+        function vizZones(f, actual) {
+            const med = partValue(f.parts[0]), high = partValue(f.parts[1]);
+            const L = 8, R2 = VW - 8, H = 54;
+            const x = v => L + Math.max(0, Math.min(v, 100)) / 100 * (R2 - L);
+            const seg = (a, b, c) => '<rect x="' + x(a).toFixed(1) + '" y="10" width="' + Math.max(0, x(b) - x(a)).toFixed(1) + '" height="14" fill="' + c + '" opacity=".85"/>';
+
+            // Ghim "now" sát mép thì nhãn 0%/100% bị đè, nên mép nào có ghim thì bỏ nhãn đó.
+            const px = x(actual);
+            const anchor = px < 40 ? 'start' : px > R2 - 40 ? 'end' : 'middle';
+            const pin = '<line x1="' + px.toFixed(1) + '" y1="4" x2="' + px.toFixed(1) + '" y2="30" stroke="' + vcol('--tx') + '" stroke-width="2"/>'
+                + '<text class="cfg-vname" x="' + px.toFixed(1) + '" y="46" text-anchor="' + anchor + '">now ' + actual.toFixed(0) + '%</text>';
+
+            const labels = (px > 40 ? '<text class="cfg-vlabel" x="' + L + '" y="34">0%</text>' : '')
+                + '<text class="cfg-vlabel" x="' + x(med).toFixed(1) + '" y="34" text-anchor="middle">' + med + '</text>'
+                + '<text class="cfg-vlabel" x="' + x(high).toFixed(1) + '" y="34" text-anchor="middle">' + high + '</text>'
+                + (px < R2 - 40 ? '<text class="cfg-vlabel" x="' + R2 + '" y="34" text-anchor="end">100%</text>' : '');
+
+            return svg(H, seg(0, med, vcol('--rev')) + seg(med, high, vcol('--conf')) + seg(high, 100, vcol('--pend')) + labels + pin);
+        }
+
+        function vizTicks(f) {
+            const L = 8, R2 = VW - 8, H = 34;
+            const cols = f.key === 'default_days' ? TH.default_days : TH.daily_to_weekly_days;
+            const shown = Math.min(cols, 60);
+            const gap = (R2 - L) / Math.max(shown, 1);
+            const bars = Array.from({ length: shown }, (_, i) =>
+                '<rect x="' + (L + i * gap).toFixed(1) + '" y="6" width="' + Math.max(1.5, gap - 2).toFixed(1) + '" height="16" rx="1" fill="' + vcol('--ac') + '" opacity=".8"/>').join('');
+            const note = '<text class="cfg-vlabel" x="' + L + '" y="32">' + cols + ' column' + (cols === 1 ? '' : 's')
+                + (cols > 60 ? ' (showing 60)' : '') + '</text>';
+            return svg(H, bars + note);
+        }
+
+        // ── Câu tóm tắt dưới mỗi hình ───────────────────────────
+        function vizRead(f) {
+            const k = f.viz.kind, src = f.viz.source;
+            if (k === 'dots') {
+                const { data: v, sample } = vizSourced('hours');
+                if (!v.length) return '';
+                const tag = sample ? 'Example data — ' : '';
+                if (f.parts.length === 3) {
+                    const g = f.parts.map(partValue);
+                    const c = [0, 0, 0, 0];
+                    v.forEach(h => c[h < g[0] ? 0 : h <= g[1] ? 1 : h <= g[2] ? 2 : 3]++);
+                    const names = ['under ' + g[0] + 'h', g[0] + '–' + g[1] + 'h', g[1] + '–' + g[2] + 'h', 'over ' + g[2] + 'h'];
+                    const cols = ramp4();
+                    return tag + 'these ' + v.length + ' reviews fall into:'
+                        + '<div class="cfg-groups">'
+                        + names.map((n, i) => '<span class="gchip"><span class="gdot" style="background:' + cols[i] + '"></span>'
+                            + n + ' <span class="gn">' + c[i] + '</span></span>').join('')
+                        + '</div>';
+                }
+                if (f.viz.mark === 'avg') {
+                    const a = v.reduce((x, y) => x + y, 0) / v.length;
+                    return tag + 'average is <b>' + a.toFixed(1) + 'h</b>, ' + (a > partValue(f.parts[0]) ? 'above' : 'below') + ' this alert level.';
+                }
+                const on = v.filter(h => h <= partValue(f.parts[0])).length;
+                return tag + '<b>' + on + ' of ' + v.length + '</b> reviews meet it (' + pct(on, v.length) + '%).';
+            }
+            if (k === 'bars') {
+                const { data: rows, sample } = vizSourced(src);
+                if (!rows.length) return '';
+                const tag = sample ? 'Example data — ' : '';
+                if (src === 'teamRate') {
+                    const low = rows.filter(r => r.value < TH.low_rate_pct && r.n > TH.too_few_files).length;
+                    const good = rows.filter(r => r.value >= TH.good_rate_pct).length;
+                    return tag + '<b>' + good + '</b> on target, <b>' + low + '</b> flagged as needing help, of ' + rows.length + ' teams.';
+                }
+                if (src === 'teamCount') {
+                    const [tooFew, showAt] = f.parts.map(partValue);
+                    const a = rows.filter(r => r.value <= tooFew).length;
+                    const b = rows.filter(r => r.value <= showAt).length;
+                    return tag + '<b>' + a + ' of ' + rows.length + '</b> teams are left out of warnings, <b>' + b + '</b> ' + (b === 1 ? 'gets' : 'get') + ' their file count printed.';
+                }
+                const over = rows.filter(r => r.value > partValue(f.parts[0])).length;
+                return tag + '<b>' + over + ' of ' + rows.length + '</b> teams are above it.';
+            }
+            if (k === 'zones') {
+                const { data: a, sample } = vizSourced(src);
+                const [med, high] = f.parts.map(partValue);
+                const lvl = a > high ? 'the red band' : a > med ? 'the amber band' : 'the green band';
+                return sample
+                    ? 'Example data — this sits at <b>' + a.toFixed(0) + '%</b>, in ' + lvl + '.'
+                    : 'Right now you sit at <b>' + a.toFixed(0) + '%</b> — in ' + lvl + '.';
+            }
+            if (k === 'ticks') {
+                if (f.key === 'default_days') return 'Opens showing the last <b>' + TH.default_days + ' days</b>.';
+                return 'One column per day up to <b>' + TH.daily_to_weekly_days + ' days</b>, then weekly, then monthly past <b>' + TH.weekly_to_monthly_weeks + ' weeks</b>.';
+            }
+            return '';
+        }
+
+        // Xem trước thông báo: gọi đúng hàm kết luận mà dashboard gọi, nhưng truyền
+        // vào chính bộ số liệu đang vẽ ở biểu đồ ngay phía trên. Biểu đồ dùng dữ liệu
+        // mẫu thì câu này cũng phải theo dữ liệu mẫu, không thì hai thứ cạnh nhau nói
+        // hai chuyện khác nhau.
+        function msgPreview(f) {
+            const fn = f.msg && CONCL[f.msg];
+            if (!fn) return '';
+            const sample = cfgSampling();
+            const st = sample ? sampleStats() : realStats();
+            const c = fn(st, 'the last 3 days');
+            const body = c.list
+                ? '<ul class="ab-list">' + c.list.map(x => '<li>' + x + '</li>').join('') + '</ul>'
+                : c.html;
+            if (!body) return '';
+            return '<div class="cfg-prev">'
+                + '<div class="cfg-prev-lbl">On the dashboard this now reads'
+                + (sample ? ' (for the example data above)' : '') + '</div>'
+                + '<div class="cfg-prev-box lv-' + c.level + '">' + body + '</div>'
+                + '</div>';
+        }
+
+        function vizHtml(f) {
+            const k = f.viz.kind;
+            if (k === 'dots') return vizDots(f, vizSourced('hours').data);
+            if (k === 'bars') return vizBars(f, vizSourced(f.viz.source).data);
+            if (k === 'zones') return vizZones(f, vizSourced(f.viz.source).data);
+            return vizTicks(f);
+        }
+
+        // Có section nào đang phải dùng dữ liệu mẫu không — dùng để ghi chú ở đầu panel
+        // và để phần xem trước lấy đúng bộ số liệu.
+        function cfgSampling() {
+            return vizSourced('hours').sample || vizSourced('teamRate').sample;
+        }
+
+        // ── Một ngưỡng = một section ────────────────────────────
+        // Thang trượt bám quanh giá trị mặc định thay vì trải hết tầm cho phép: kéo
+        // một núm nằm ở 2% chiều dài thanh thì không chỉnh nổi.
+        // Điểm đầu thanh phải là bội của bước, nếu không mọi nấc đều lệch: bắt đầu từ
+        // 0.1 với bước 0.25 sẽ cho ra 0.35, 0.6, 1.35 — không ai muốn đặt deadline 1.35h.
+        function sliderRange(p) {
+            if (p.unit === '%') return { min: 0, max: 100, step: 1 };
+            const base = p.def;
+            const step = p.unit !== 'hours' ? 1 : base < 4 ? 0.25 : base < 24 ? 0.5 : 2;
+            const min = Math.max(step, Math.ceil(p.min / step) * step);
+            const max = Math.min(p.max, Math.max(Math.ceil(base * 4 / step) * step, min + step * 8));
+            return { min, max, step };
+        }
+
+        function partValue(p) {
+            const v = TH[p.key];
+            return p.index == null ? v : (v || [])[p.index];
+        }
+
+        function cfgField(f, readOnly) {
+            const dis = readOnly ? ' disabled' : '';
+            const labelled = f.parts.some(p => p.label);
+
+            const cell = (p, i) => {
+                const sr = sliderRange(p);
+                const call = 'cfgEditPart(\'' + f.key + '\', ' + i + ', this)';
+                return '<div class="cfg-part">'
+                    + (labelled ? '<div class="cfg-part-lbl">' + esc(p.label) + '</div>' : '')
+                    + '<div class="cfg-nums">'
+                    + '<input id="n-' + f.key + '-' + i + '" type="number" min="' + p.min + '" max="' + p.max + '" step="any"'
+                    + ' value="' + esc(partValue(p)) + '"' + dis + ' oninput="' + call + '">'
+                    + '<span class="cfg-unit">' + esc(p.unit) + '</span></div>'
+                    + '<input class="cfg-slider" id="s-' + f.key + '-' + i + '" type="range"'
+                    + ' min="' + sr.min + '" max="' + sr.max + '" step="' + sr.step + '"'
+                    + ' value="' + partValue(p) + '"' + dis
+                    + ' aria-label="' + esc(f.label + (p.label ? ' — ' + p.label : '')) + '"'
+                    + ' oninput="' + call + '"></div>';
+            };
+
+            return '<div class="cfg-sec cfg-f" data-key="' + f.key + '">'
+                + '<div class="cfg-sec-name">' + esc(f.label) + '</div>'
+                + '<div class="cfg-sec-help">' + esc(f.help) + '</div>'
+                + '<div class="cfg-parts' + (f.parts.length > 1 ? ' multi' : '') + '">'
+                + f.parts.map(cell).join('') + '</div>'
+                + '<div class="cfg-viz">' + vizHtml(f) + '</div>'
+                + '<div class="cfg-read">' + vizRead(f) + '</div>'
+                + msgPreview(f)
+                + '<div class="cfg-err"></div></div>';
+        }
+
+        function cfgFieldSpec(key) {
+            for (const g of TH_SCHEMA) { const f = g.fields.find(x => x.key === key); if (f) return f }
+            return null;
+        }
+
+        function cfgSetErr(key, msg) {
+            const box = document.querySelector('.cfg-f[data-key="' + key + '"]');
+            if (!box) return;
+            box.querySelector('.cfg-err').textContent = msg || '';
+            box.querySelectorAll('input[type=number]').forEach(i => i.classList.toggle('bad', Boolean(msg)));
+        }
+
+        // Vẽ lại hình và câu tóm tắt tại chỗ, không dựng lại cả panel — dựng lại sẽ
+        // cướp con trỏ khỏi ô người dùng đang gõ hoặc thanh trượt đang kéo.
+        function cfgRefreshViz() {
+            document.querySelectorAll('.cfg-sec[data-key]').forEach(box => {
+                const f = cfgFieldSpec(box.dataset.key);
+                if (!f || !f.viz) return;
+                box.querySelector('.cfg-viz').innerHTML = vizHtml(f);
+                box.querySelector('.cfg-read').innerHTML = vizRead(f);
+                const prev = box.querySelector('.cfg-prev');
+                const next = msgPreview(f);
+                if (prev) prev.outerHTML = next || '<div class="cfg-prev"></div>';
+                else if (next) box.querySelector('.cfg-read').insertAdjacentHTML('afterend', next);
+            });
+        }
+
+        // Giữ ô số và thanh trượt của cùng một ô khớp nhau khi một bên đổi.
+        function cfgSync(sectionKey, i, source) {
+            for (const id of ['n-' + sectionKey + '-' + i, 's-' + sectionKey + '-' + i]) {
+                const el = document.getElementById(id);
+                if (el && el !== source) el.value = source.value;
+            }
+        }
+
+        // Khoảng hợp lệ của một ô bị hai ô kề chặn lại: "Red from" không được tụt dưới
+        // "Amber from". Chặn ngay tại đây thay vì để tới lúc Save mới báo, vì trong lúc
+        // kéo mà các dải đổi chỗ cho nhau thì hình vẽ ra vô nghĩa.
+        function partBounds(f, i) {
+            const p = f.parts[i];
+            let lo = p.min, hi = p.max;
+            if (!f.ordered) return { lo, hi };
+            const gap = f.ordered === 'lt' ? sliderRange(p).step : 0;
+            if (i > 0) lo = Math.max(lo, partValue(f.parts[i - 1]) + gap);
+            if (i < f.parts.length - 1) hi = Math.min(hi, partValue(f.parts[i + 1]) - gap);
+            return { lo, hi: Math.max(lo, hi) };
+        }
+
+        // Giá trị chưa hợp lệ thì không đẩy vào TH: vẽ lại bằng số rác sẽ làm trắng chart
+        // ngay giữa lúc người dùng còn đang gõ dở.
+        function cfgEditPart(sectionKey, i, el) {
+            const f = cfgFieldSpec(sectionKey);
+            if (!f) return;
+            const p = f.parts[i];
+            const raw = Number(el.value);
+            if (el.value.trim() === '' || !Number.isFinite(raw)) {
+                cfgSetErr(sectionKey, 'Must be a number.');
+                return;
+            }
+
+            const { lo, hi } = partBounds(f, i);
+            const dragging = el.type === 'range';
+            // Kéo thanh: kẹp im lặng, núm chỉ đơn giản không đi quá được.
+            // Gõ tay: KHÔNG kẹp — kẹp từng phím thì muốn nhập 12 mà vừa chạm 1 đã bị
+            // nhảy về cận dưới, không gõ tiếp được. Báo lỗi và giữ nguyên giá trị cũ.
+            const n = dragging ? Math.min(hi, Math.max(lo, raw)) : raw;
+            if (!dragging && (n < lo || n > hi)) {
+                cfgSetErr(sectionKey, n < p.min || n > p.max
+                    ? 'Must be between ' + p.min + ' and ' + p.max + '.'
+                    : 'Must stay between ' + lo + ' and ' + hi + ' so the levels keep their order.');
+                return;
+            }
+            cfgSetErr(sectionKey, '');
+
+            let value;
+            if (p.index == null) value = n;
+            else { value = (TH[p.key] || []).slice(); value[p.index] = n }
+
+            TH[p.key] = value;
+            el.value = n;
+            cfgSync(sectionKey, i, el);
+            rAll();
+            cfgRefreshViz();
+        }
+
+        function cfgPasswordBlock() {
+            return '<div class="cfg-pw">'
+                + '<label style="display:block;font-size:12px;font-weight:700;color:var(--tx);margin-bottom:8px">Change password</label>'
+                + '<div class="cfg-lock">'
+                + pwInput('cfg-pw-cur', 'Current password', 'current-password')
+                + pwInput('cfg-pw-new', 'New password (8 characters or more)', 'new-password')
+                + '<button class="cfg-btn" onclick="cfgChangePw()">Update password</button>'
+                + '<div class="cfg-err" id="cfg-pw-err" style="margin-top:8px"></div>'
+                + '</div></div>';
+        }
+
+        // Mật khẩu gõ mù rất dễ sai một ký tự mà không biết, nên ô nào cũng có nút xem.
+        function pwInput(id, placeholder, autocomplete) {
+            return '<div class="cfg-pwrap">'
+                + '<input type="password" id="' + id + '" placeholder="' + placeholder + '" autocomplete="' + autocomplete + '">'
+                + '<button type="button" class="cfg-eye" onclick="cfgEye(\'' + id + '\', this)">Show</button>'
+                + '</div>';
+        }
+
+        function cfgEye(id, btn) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const hidden = el.type === 'password';
+            el.type = hidden ? 'text' : 'password';
+            btn.textContent = hidden ? 'Hide' : 'Show';
+        }
+
+        function cfgMsg(text, bad) {
+            const el = document.getElementById('cfg-msg');
+            if (!el) return;
+            el.textContent = text;
+            el.className = 'cfg-msg' + (bad ? ' bad' : '');
+        }
+
+        async function cfgPost(path, body) {
+            const res = await fetch('/api/settings' + path, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', ...(TH_TOKEN ? { 'x-config-token': TH_TOKEN } : {}) },
+                body: JSON.stringify(body || {}),
+            });
+            return { status: res.status, body: await res.json().catch(() => ({})) };
+        }
+
+        async function cfgUnlock() {
+            const input = document.getElementById('cfg-pass');
+            const err = document.getElementById('cfg-lock-err');
+            err.textContent = '';
+            const r = await cfgPost('/unlock', { password: input.value });
+            if (r.body.token) { TH_TOKEN = r.body.token; cfgRender(); return }
+            err.textContent = (r.body.error || 'Could not unlock.')
+                + (r.body.triesLeft != null ? ' ' + r.body.triesLeft + ' tries left.' : '');
+            input.select();
+        }
+
+        async function cfgSave() {
+            const r = await cfgPost('/', { values: TH });
+            if (r.status === 401) { TH_TOKEN = ''; cfgRender(); return }
+            if (r.status === 400) {
+                for (const [k, m] of Object.entries(r.body.fields || {})) cfgSetErr(k, m);
+                cfgMsg(r.body.error || 'Some values need fixing.', true);
+                return;
+            }
+            TH_SAVED = { ...r.body.values };
+            TH = { ...TH_SAVED };
+            rAll();
+            cfgRender();
+            cfgMsg('Saved.');
+        }
+
+        function cfgCancel() {
+            TH = { ...TH_SAVED };
+            rAll();
+            if (document.getElementById('cfg').classList.contains('active')) cfgRender();
+        }
+
+        async function cfgReset() {
+            const r = await cfgPost('/reset', {});
+            if (r.status === 401) { TH_TOKEN = ''; cfgRender(); return }
+            TH_SAVED = { ...r.body.values };
+            TH = { ...TH_SAVED };
+            rAll();
+            cfgRender();
+            cfgMsg('Back to defaults.');
+        }
+
+        async function cfgChangePw() {
+            const cur = document.getElementById('cfg-pw-cur');
+            const next = document.getElementById('cfg-pw-new');
+            const err = document.getElementById('cfg-pw-err');
+            const r = await cfgPost('/password', { current: cur.value, next: next.value });
+            if (r.status === 200) {
+                // Server huỷ mọi phiên khi đổi mật khẩu, nên phải đăng nhập lại bằng cái mới.
+                TH_TOKEN = '';
+                cfgRender();
+                cfgMsg('Password changed — sign in again.');
+                return;
+            }
+            err.textContent = r.body.error || 'Could not change the password.';
+            cur.value = ''; next.value = '';
+        }
 
         fetchData();
     </script>

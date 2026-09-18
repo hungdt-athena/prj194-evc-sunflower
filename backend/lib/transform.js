@@ -7,7 +7,6 @@ const { parseSheetDate, parseBool, countAttendees } = require('./parse');
 
 const MEETING_STATUSES = ['pending', 'confirmed', 'reviewed', 'discarded'];
 const SHEET_STATUSES = ['pending', 'confirmed', 'reviewed', 'discarded'];
-const DEFAULT_SLA_HOURS = 4;
 
 function isUntagged(team, mainTag) {
   const t = (team || '').trim();
@@ -61,7 +60,7 @@ function computeReviewHours(reviewedAtIso, meetingTimeIso) {
 }
 
 function toReviews(rows, opts = {}) {
-  const { slaHours = DEFAULT_SLA_HOURS, meetingTimeById = {} } = opts;
+  const { meetingTimeById = {} } = opts;
 
   const mapped = [];
   for (const row of rows) {
@@ -86,7 +85,6 @@ function toReviews(rows, opts = {}) {
       attendees_granted: row.attendees_granted || null,
       sent_to_attendees_at: parseSheetDate(row.sent_to_attendees_at),
       review_hours: reviewHours,
-      is_sla_breach: reviewHours !== null && reviewHours > slaHours ? 1 : 0,
       is_untagged: isUntagged(row.team, row.main_tag) ? 1 : 0,
     });
   }
@@ -112,5 +110,4 @@ module.exports = {
   toMeeting,
   toReviews,
   computeReviewHours,
-  DEFAULT_SLA_HOURS,
 };

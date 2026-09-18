@@ -75,6 +75,7 @@ app.post('/api/sync/refresh', async (req, res) => {
 // ─── API Routes ─────────────────────────────────────────
 app.use('/api/meta', require('./routes/meta'));
 app.use('/api/data', require('./routes/data'));
+app.use('/api/settings', require('./routes/settings'));
 
 // ─── Catchall: serve frontend ───────────────────────────
 app.use((req, res) => {

@@ -41,7 +41,6 @@ const SCHEMA = `
     attendees_granted    TEXT,
     sent_to_attendees_at TEXT,
     review_hours         REAL,
-    is_sla_breach        INTEGER DEFAULT 0,
     is_untagged          INTEGER DEFAULT 0,
     is_deleted           INTEGER DEFAULT 0,
     synced_at            TEXT DEFAULT (datetime('now'))
@@ -57,6 +56,12 @@ const SCHEMA = `
     last_updated    INTEGER DEFAULT 0,
     fingerprint     TEXT DEFAULT NULL,
     last_status     TEXT DEFAULT 'ok'
+  );
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE INDEX IF NOT EXISTS idx_m_team    ON meetings(team);
@@ -109,11 +114,11 @@ function openDb(dbPath) {
     upsertReview: db.prepare(`
       INSERT INTO reviews (id, meeting_id, meeting_name, meeting_time, team, main_tag, doc_url,
                            folder_url, review_type, reviewed_at, attendees_granted,
-                           sent_to_attendees_at, review_hours, is_sla_breach, is_untagged,
+                           sent_to_attendees_at, review_hours, is_untagged,
                            is_deleted, synced_at)
       VALUES (@id, @meeting_id, @meeting_name, @meeting_time, @team, @main_tag, @doc_url,
               @folder_url, @review_type, @reviewed_at, @attendees_granted,
-              @sent_to_attendees_at, @review_hours, @is_sla_breach, @is_untagged,
+              @sent_to_attendees_at, @review_hours, @is_untagged,
               0, datetime('now'))
       ON CONFLICT(id) DO UPDATE SET
         meeting_name = excluded.meeting_name, meeting_time = excluded.meeting_time,
@@ -121,7 +126,7 @@ function openDb(dbPath) {
         folder_url = excluded.folder_url, review_type = excluded.review_type,
         attendees_granted = excluded.attendees_granted,
         sent_to_attendees_at = excluded.sent_to_attendees_at,
-        review_hours = excluded.review_hours, is_sla_breach = excluded.is_sla_breach,
+        review_hours = excluded.review_hours,
         is_untagged = excluded.is_untagged, is_deleted = 0, synced_at = datetime('now')
     `),
 
@@ -240,7 +245,32 @@ function openDb(dbPath) {
     return { raw, reviewed, team_n, untagged_raw };
   }
 
-  return { db, stmts, replaceAll, getDashboardData };
+  // ── Settings ────────────────────────────────────────────────
+  // Giá trị lưu dạng JSON để mảng (review_time_groups) cũng cất được.
+  function readSettings() {
+    const out = {};
+    for (const r of db.prepare('SELECT key, value FROM settings').all()) {
+      try { out[r.key] = JSON.parse(r.value) } catch { /* dòng hỏng thì bỏ qua */ }
+    }
+    return out;
+  }
+
+  function writeSettings(values) {
+    const up = db.prepare(`
+      INSERT INTO settings (key, value, updated_at) VALUES (@key, @value, datetime('now'))
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `);
+    db.transaction(rows => { for (const r of rows) up.run(r) })(
+      Object.entries(values).map(([key, value]) => ({ key, value: JSON.stringify(value) }))
+    );
+  }
+
+  function deleteSettings(keys) {
+    const del = db.prepare('DELETE FROM settings WHERE key = ?');
+    db.transaction(ks => { for (const k of ks) del.run(k) })(keys);
+  }
+
+  return { db, stmts, replaceAll, getDashboardData, readSettings, writeSettings, deleteSettings };
 }
 
 // Instance mặc định dùng chung cho toàn app.
@@ -253,4 +283,7 @@ module.exports = {
   stmts: defaultStore.stmts,
   replaceAll: defaultStore.replaceAll,
   getDashboardData: defaultStore.getDashboardData,
+  readSettings: defaultStore.readSettings,
+  writeSettings: defaultStore.writeSettings,
+  deleteSettings: defaultStore.deleteSettings,
 };

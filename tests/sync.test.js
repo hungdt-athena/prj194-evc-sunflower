@@ -51,22 +51,7 @@ test('runSync dùng meeting_time từ tab raw khi dòng review thiếu', async (
   assert.strictEqual(row.review_hours, 41.45);
 });
 
-test('runSync áp ngưỡng SLA truyền vào', async () => {
-  const countBreaches = async (slaHours) => {
-    const store = openDb(':memory:');
-    await runSync({
-      store,
-      logger: silent,
-      slaHours,
-      fetchRows: async () => ({ raw: rawRows, reviewed: reviewedRows }),
-    });
-    return store.db.prepare('SELECT COUNT(*) AS c FROM reviews WHERE is_sla_breach = 1').get().c;
-  };
 
-  // Cả hai review đều vượt 4 giờ; ngưỡng đủ lớn thì không còn dòng nào breach.
-  assert.strictEqual(await countBreaches(4), 2);
-  assert.strictEqual(await countBreaches(100000), 0);
-});
 
 test('runSync nuốt lỗi mạng, giữ nguyên dữ liệu cũ và ghi last_status', async () => {
   const store = openDb(':memory:');
