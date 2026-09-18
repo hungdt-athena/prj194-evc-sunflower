@@ -19,13 +19,28 @@ function rowsToObjects(values) {
   });
 }
 
-function createClient(keyFile) {
-  const auth = new google.auth.GoogleAuth({ keyFile, scopes: SCOPES });
-  return google.sheets({ version: 'v4', auth });
+/**
+ * Nhận credential theo hai đường: đường dẫn file (máy local) hoặc nội dung JSON
+ * (Replit và các nơi chỉ có biến môi trường, không commit được file key).
+ */
+function createClient({ keyFile, credentialsJson }) {
+  if (credentialsJson) {
+    let credentials;
+    try {
+      credentials = JSON.parse(credentialsJson);
+    } catch (err) {
+      throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON không phải JSON hợp lệ: ' + err.message);
+    }
+    return google.sheets({ version: 'v4', auth: new google.auth.GoogleAuth({ credentials, scopes: SCOPES }) });
+  }
+  if (!keyFile) {
+    throw new Error('Thiếu credential: đặt GOOGLE_SERVICE_ACCOUNT_JSON hoặc GOOGLE_SERVICE_ACCOUNT_KEY_FILE');
+  }
+  return google.sheets({ version: 'v4', auth: new google.auth.GoogleAuth({ keyFile, scopes: SCOPES }) });
 }
 
-async function fetchSheetRows({ sheetId, keyFile, client }) {
-  const sheets = client || createClient(keyFile);
+async function fetchSheetRows({ sheetId, keyFile, credentialsJson, client }) {
+  const sheets = client || createClient({ keyFile, credentialsJson });
   const res = await sheets.spreadsheets.values.batchGet({
     spreadsheetId: sheetId,
     ranges: [RAW_RANGE, REVIEWED_RANGE],

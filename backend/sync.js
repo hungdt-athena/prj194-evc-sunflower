@@ -22,7 +22,8 @@ async function runSync(opts = {}) {
     slaHours = Number(process.env.SLA_HOURS) || DEFAULT_SLA_HOURS,
     sheetId = process.env.SHEET_ID,
     keyFile = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE || process.env.GOOGLE_APPLICATION_CREDENTIALS,
-    fetchRows = () => fetchSheetRows({ sheetId, keyFile }),
+    credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+    fetchRows = () => fetchSheetRows({ sheetId, keyFile, credentialsJson }),
   } = opts;
 
   try {

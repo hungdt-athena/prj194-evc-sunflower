@@ -46,7 +46,8 @@ then put its JSON key somewhere the app can read it.
 | Variable | Default | What it does |
 |---|---|---|
 | `SHEET_ID` | — | the spreadsheet to read |
-| `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` | — | path to the service-account JSON key |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | — | the service-account key as raw JSON; use this where you cannot ship a file |
+| `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` | — | path to the service-account JSON key; ignored when the variable above is set |
 | `PORT` | `3000` | HTTP port |
 | `DB_PATH` | `./data/sunflower.db` | SQLite file; the directory is created if missing |
 | `SYNC_INTERVAL_MINUTES` | `5` | how often to pull the sheet |
@@ -54,7 +55,10 @@ then put its JSON key somewhere the app can read it.
 | `SYNC_API_KEY` | — | protects `POST /api/sync/manual`; leave unset only in development |
 | `REFRESH_COOLDOWN_SECONDS` | `20` | minimum gap between dashboard Refresh presses |
 
-Use `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` rather than the conventional
+Supply credentials one way or the other: a file path locally, the JSON itself on a
+host that only offers environment variables.
+
+Prefer `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` over the conventional
 `GOOGLE_APPLICATION_CREDENTIALS`: dotenv will not override a variable the shell has
 already exported, so the standard name silently picks up another project's credentials
 and fails with a confusing `403 The caller does not have permission`.
@@ -85,10 +89,11 @@ date parsing, review-time and SLA maths, status mapping, deletion marking, and t
 ## Deploying on Replit
 
 1. Import the repository into a new Repl.
-2. Add the environment variables above under **Secrets**.
-3. Upload the service-account JSON and point `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` at it —
-   never commit that file.
-4. Set the run command to `npm start`, and leave `PORT` unset so Replit's own value is used.
+2. Under **Secrets**, set `SHEET_ID`, `SYNC_API_KEY`, and `GOOGLE_SERVICE_ACCOUNT_JSON`
+   (paste the whole key file as one line). Leave `PORT` alone — Replit sets it.
+3. Run command: `npm start`.
+4. Deploy as a **Reserved VM**. On Autoscale the process sleeps between requests, which
+   stops the sync timer, so the dashboard would only be as fresh as its last visitor.
 
 SQLite lives on the Repl's disk. It is a cache of the sheet rather than a source of
 truth, so losing it costs nothing: the next sync rebuilds it.

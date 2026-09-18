@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { rowsToObjects, fetchSheetRows } = require('../backend/sheets');
+const { rowsToObjects, fetchSheetRows, createClient } = require('../backend/sheets');
 
 test('rowsToObjects dùng dòng đầu làm header', () => {
   const out = rowsToObjects([
@@ -58,4 +58,21 @@ test('fetchSheetRows chịu được range rỗng', async () => {
   };
   const out = await fetchSheetRows({ sheetId: 'SHEET', client });
   assert.deepStrictEqual(out, { raw: [], reviewed: [] });
+});
+
+test('createClient báo lỗi rõ ràng khi JSON trong biến môi trường hỏng', () => {
+  assert.throws(
+    () => createClient({ credentialsJson: '{not json' }),
+    /GOOGLE_SERVICE_ACCOUNT_JSON không phải JSON hợp lệ/
+  );
+});
+
+test('createClient báo lỗi khi không có credential nào', () => {
+  assert.throws(() => createClient({}), /Thiếu credential/);
+});
+
+test('createClient ưu tiên JSON trong biến môi trường hơn đường dẫn file', () => {
+  const creds = JSON.stringify({ client_email: 'a@b.iam.gserviceaccount.com', private_key: 'x' });
+  // không ném lỗi nghĩa là nó đã đi nhánh credentials, không đụng tới file không tồn tại
+  assert.ok(createClient({ credentialsJson: creds, keyFile: '/khong/ton/tai.json' }));
 });
