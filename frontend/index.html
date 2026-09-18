@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunflower Logging Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root {
+            --bg: #fafafa;
+            --s1: #ffffff;
+            --s2: #f4f4f5;
+            --bd: #e4e4e7;
+            --ac: #f97316;
+            --ac-light: rgba(249, 115, 22, 0.08);
+            --ac-mid: rgba(249, 115, 22, 0.15);
+            --ac2: #059669;
+            --tx: #18181b;
+            --tx2: #71717a;
+            --rev: #059669;
+            --conf: #d97706;
+            --pend: #dc2626;
+            --risk: #ea580c;
+            --r: 10px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #09090b;
+            --s1: #18181b;
+            --s2: #27272a;
+            --bd: #3f3f46;
+            --ac: #fb923c;
+            --ac-light: rgba(251, 146, 60, 0.1);
+            --ac-mid: rgba(251, 146, 60, 0.2);
+            --ac2: #34d399;
+            --tx: #fafafa;
+            --tx2: #a1a1aa;
+            --rev: #34d399;
+            --conf: #fbbf24;
+            --pend: #f87171;
+            --risk: #fb923c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--tx);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ─────────────────────────────── */
+        .hdr {
+            background: var(--s1);
+            border-bottom: 1px solid var(--bd);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hdr h1 {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hdr-logo {
+            width: 28px; height: 28px;
+            background: var(--ac);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .hdr-logo svg { width: 16px; height: 16px; }
+        .bdg {
+            background: var(--ac);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .rng { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+        .rng-badge {
+            background: var(--s2); border: 1px solid var(--bd); border-radius: 20px;
+            padding: 3px 10px; font-size: 11px; font-weight: 500; color: var(--tx2);
+            display: flex; align-items: center; gap: 5px; font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .rng-label {
+            font-size: 9px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--tx2); opacity: .6;
+        }
+        .xbtn {
+            padding: 7px 14px;
+            border: 1.5px solid var(--bd);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--tx2);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all .15s;
+            white-space: nowrap;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .xbtn:hover { background: var(--s2); color: var(--tx); border-color: var(--tx2); }
+        .xbtn.active { background: var(--ac-light); color: var(--ac); border-color: var(--ac); }
+
+        /* ── Theme toggle capsule ───────────────── */
+        .theme-toggle {
+            display: flex; align-items: center;
+            background: var(--s2); border: 1.5px solid var(--bd);
+            border-radius: 100px; padding: 3px; gap: 0;
+            cursor: pointer; user-select: none; flex-shrink: 0;
+        }
+        .th-opt {
+            padding: 4px 11px; border-radius: 100px;
+            font-size: 11px; font-weight: 600; color: var(--tx2);
+            display: flex; align-items: center; gap: 5px;
+            transition: background .2s, color .2s, box-shadow .2s; white-space: nowrap;
+        }
+        .th-opt svg { width: 12px; height: 12px; flex-shrink: 0; }
+        .th-opt.active { background: var(--s1); color: var(--tx); box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+
+
+        /* ── Filter bar ────────────────────────── */
+        .fbar {
+            background: var(--s1);
+            border-bottom: 1px solid var(--bd);
+            padding: 10px 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .fl {
+            color: var(--tx2);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .pb {
+            padding: 6px 12px;
+            border: 1.5px solid var(--bd);
+            border-radius: 7px;
+            background: var(--s1);
+            color: var(--tx2);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all .15s;
+        }
+        .pb:hover { border-color: var(--ac); color: var(--ac); background: var(--ac-light); }
+        .pb.on { background: var(--ac); border-color: var(--ac); color: #fff; font-weight: 700; }
+        .di {
+            padding: 6px 10px;
+            border: 1.5px solid var(--bd);
+            border-radius: 7px;
+            background: var(--s1);
+            color: var(--tx);
+            font-size: 12px;
+            font-family: inherit;
+        }
+        .di:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-light); }
+        .ts {
+            padding: 6px 10px;
+            border: 1.5px solid var(--bd);
+            border-radius: 7px;
+            background: var(--s1);
+            color: var(--tx);
+            font-size: 12px;
+            min-width: 130px;
+            font-family: inherit;
+        }
+        .ts:focus { outline: none; border-color: var(--ac); }
+        .sep { color: var(--bd); font-size: 16px; }
+        .frst {
+            padding: 6px 12px;
+            border: 1.5px solid var(--bd);
+            border-radius: 7px;
+            background: transparent;
+            color: var(--tx2);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .frst:hover { color: var(--tx); border-color: var(--tx2); }
+        .frsh {
+            padding: 6px 12px;
+            border: 1.5px solid var(--ac);
+            border-radius: 7px;
+            background: var(--ac);
+            color: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity .15s, transform .1s;
+        }
+        .frsh:hover { opacity: .9; }
+        .frsh:active { transform: scale(.97); }
+        .frsh:disabled { opacity: .55; cursor: default; }
+        .frsh svg { width: 12px; height: 12px; }
+        .frsh.spin svg { animation: frspin 1s linear infinite; }
+        @keyframes frspin { to { transform: rotate(360deg); } }
+        .synced { font-size: 11px; color: var(--tx2); white-space: nowrap; }
+            margin-left: auto;
+
+        /* ── Tab content ───────────────────────── */
+        .page { padding: 24px 28px; }
+        .tc.on { display: block; }
+
+        /* ── KPI grid ──────────────────────────── */
+        .kr { display: grid; gap: 14px; margin-bottom: 20px; }
+        .kr3 { grid-template-columns: repeat(3, 1fr); }
+        .kr4 { grid-template-columns: repeat(4, 1fr); }
+        .kr5 { grid-template-columns: repeat(5, 1fr); }
+        .kc {
+            background: var(--s1);
+            border: 1.5px solid var(--bd);
+            border-radius: var(--r);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            cursor: help;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .kc:hover { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-light); }
+        .kc::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+        .kc.grn::before { background: var(--rev); }
+        .kc.ylw::before { background: var(--conf); }
+        .kc.red::before { background: var(--pend); }
+        .kc.prp::before { background: var(--ac); }
+        .kc.tel::before { background: var(--ac2); }
+        .kl {
+            font-size: 10px; color: var(--tx2); text-transform: uppercase;
+            letter-spacing: 0.07em; margin-bottom: 8px; font-weight: 700;
+        }
+        .kv {
+            font-size: 34px; font-weight: 800; line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .kv.grn { color: var(--rev); }
+        .kv.ylw { color: var(--conf); }
+        .kv.red { color: var(--pend); }
+        .kv.prp { color: var(--ac); }
+        .kv.tel { color: var(--ac2); }
+        .ks { font-size: 12px; color: var(--tx2); margin-top: 4px; }
+        .kd {
+            margin-top: 12px; border-top: 1px solid var(--bd);
+            padding-top: 10px; display: flex; flex-direction: column; gap: 5px;
+        }
+        .kdr { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .kdl { color: var(--tx2); }
+        .kdv { font-weight: 700; color: var(--tx); }
+
+        /* ── Chart grid ────────────────────────── */
+        .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .fw { margin-bottom: 16px; }
+
+        /* ── Cards ─────────────────────────────── */
+        .cd {
+            background: var(--s1);
+            border: 1.5px solid var(--bd);
+            border-radius: var(--r);
+            padding: 20px;
+            display: flex; flex-direction: column;
+        }
+        .ct {
+            font-size: 11px; font-weight: 700; color: var(--tx2);
+            text-transform: uppercase; letter-spacing: 0.07em;
+            margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+            flex: 0 0 auto;
+        }
+        /* Table wrapper: fills remaining card height */
+        .tbl-wrap { flex: 1; overflow-y: auto; min-height: 0; }
+        .dot {
+            width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+        }
+
+        /* ── Chart containers: fixed height ────── */
+        .cw { position: relative; height: 350px; width: 100%; flex: 0 0 auto; }
+        .cw.tl { height: 400px; }
+        .cw.sm { height: 260px; }
+        /* Bar/Line: canvas fills the wrapper (maintainAspectRatio: false) */
+        .cw canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+        /* Donut/Pie: centered, never distorted */
+        .cw.donut { height: 320px; display: flex; align-items: center; justify-content: center; }
+        .cw.donut canvas { position: static; width: auto !important; height: 100% !important; max-height: 310px; max-width: 100%; }
+
+
+        /* ── Chart note/annotation ─────────────── */
+        .cn {
+            margin-top: 10px; font-size: 12px; color: var(--tx2);
+            padding: 8px 12px; background: var(--s2); border-radius: 7px;
+            border-left: 3px solid var(--ac); line-height: 1.5; flex: 0 0 auto;
+        }
+
+        /* ── Tables ────────────────────────────── */
+        table.dt { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .dt th {
+            padding: 10px 14px; text-align: left; color: var(--tx2);
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            font-size: 10px; border-bottom: 1.5px solid var(--bd);
+            background: var(--s2); white-space: nowrap;
+            position: sticky; top: 0; z-index: 1;
+        }
+        .dt td {
+            padding: 11px 14px; border-bottom: 1px solid var(--bd); color: var(--tx);
+            word-break: break-word; white-space: normal; line-height: 1.4;
+        }
+        .dt tr:last-child td { border-bottom: none; }
+        .dt tbody tr { transition: background .1s; }
+        .dt tbody tr:hover td { background: var(--ac-light); }
+
+        /* ── Status badges / dots ──────────────── */
+        .tc2 {
+            display: inline-block; padding: 3px 8px; border-radius: 5px;
+            font-size: 11px; font-weight: 700; background: var(--s2); color: var(--tx);
+            letter-spacing: 0.02em;
+        }
+        .sd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
+        .sr { background: var(--rev); }
+        .sc { background: var(--conf); }
+        .sp2 { background: var(--pend); }
+        .srisk { background: var(--risk); }
+        .sg { color: var(--rev); }
+        .sw { color: var(--conf); }
+        .sb { color: var(--pend); }
+        .srk { color: var(--risk); }
+        .tv { font-weight: 700; }
+        .tl2 { color: var(--tx2); }
+
+        /* ── KPI target row ────────────────────── */
+        .tgt {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 6px; padding-top: 6px;
+            border-top: 1.5px dashed var(--bd);
+            font-size: 11px;
+        }
+        .tgt-lbl {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--tx2);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .tgt-val {
+            font-size: 11px; font-weight: 600; color: var(--tx2);
+            font-variant-numeric: tabular-nums;
+        }
+        .risk-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 2px 7px; border-radius: 4px;
+            font-size: 11px; font-weight: 700;
+            background: rgba(234, 88, 12, 0.1); color: var(--risk);
+            border: 1px solid rgba(234, 88, 12, 0.25);
+        }
+
+        /* ── Insight Panel (Redesigned) ─────────── */
+        .rb {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0; border-radius: var(--r); overflow: hidden;
+            border: 1.5px solid var(--bd); margin-bottom: 20px;
+        }
+        .rb-head {
+            grid-column: 1 / -1;
+            background: var(--s2);
+            border-bottom: 1px solid var(--bd);
+            padding: 12px 18px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .rb-icon {
+            width: 30px; height: 30px; border-radius: 8px;
+            background: var(--ac-light); color: var(--ac);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .rb-icon svg { width: 15px; height: 15px; }
+        .rb-title {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.07em; color: var(--tx2);
+        }
+        .rb-purpose {
+            font-size: 14px; font-weight: 700; color: var(--tx); margin-top: 1px;
+        }
+        .rb-col {
+            padding: 16px 20px;
+            background: var(--s1);
+        }
+        .rb-col:first-of-type { border-right: 1px solid var(--bd); }
+        .rb-label {
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px;
+            margin-bottom: 10px; color: var(--ac);
+        }
+        .rb-label.act { color: #92400e; }
+        [data-theme="dark"] .rb-label.act { color: #fbbf24; }
+        .rb-items { display: flex; flex-direction: column; gap: 7px; }
+        .rb-item {
+            display: flex; gap: 8px; align-items: flex-start;
+            font-size: 13px; line-height: 1.5; color: var(--tx2);
+        }
+        .rb-item .rb-item-icon {
+            flex-shrink: 0; margin-top: 3px; width: 14px; height: 14px;
+        }
+        .rb-item b { color: var(--tx); font-weight: 600; }
+
+        /* ── Alert box (Redesigned — flat, orange) ─ */
+        .ab {
+            background: var(--ac-light);
+            border: 1.5px solid var(--ac);
+            border-radius: var(--r);
+            padding: 16px 20px;
+            color: var(--tx);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .ab-header {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 13px; color: var(--ac);
+            margin-bottom: 8px;
+        }
+        .ab-header svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .ab-list { margin: 0; padding-left: 18px; }
+        .ab-list li { margin: 1px 0; }
+        .ab b { color: var(--tx); font-weight: 700; }
+        .ab li { margin-left: 18px; }
+        .ab ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+        /* ── OK insight box ────────────────────── */
+        .ib {
+            background: rgba(5, 150, 105, 0.06);
+            border: 1.5px solid rgba(5, 150, 105, 0.25);
+            border-radius: var(--r);
+            padding: 12px 16px; margin-bottom: 16px;
+            font-size: 13px; color: var(--tx2); line-height: 1.6;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .ib svg { width: 18px; height: 18px; color: var(--rev); flex-shrink: 0; }
+        .ib b { color: var(--tx); font-weight: 600; }
+
+        /* ── Warning box ───────────────────────── */
+        .wb {
+            background: rgba(217, 119, 6, 0.06);
+            border: 1.5px solid rgba(217, 119, 6, 0.25);
+            border-radius: var(--r);
+            padding: 12px 16px; margin-bottom: 16px;
+            font-size: 13px; color: #92400e; line-height: 1.6;
+        }
+        [data-theme="dark"] .wb { color: #fbbf24; }
+
+        /* ── Chart annotation boxes ───────────── */
+        .ca { margin-top: 10px; padding: 9px 12px; border-radius: 7px; font-size: 12px; line-height: 1.55; display: none; flex: 0 0 auto; }
+        .ca.ca-ok { display: block; background: rgba(5,150,105,.07); border-left: 3px solid var(--rev); color: #065f46; }
+        .ca.ca-warn { display: block; background: rgba(217,119,6,.07); border-left: 3px solid var(--conf); color: #78350f; }
+        .ca.ca-bad { display: block; background: rgba(220,38,38,.07); border-left: 3px solid var(--pend); color: #991b1b; }
+        [data-theme="dark"] .ca.ca-ok { background: rgba(52,211,153,.06); border-color: var(--rev); color: var(--rev); }
+        [data-theme="dark"] .ca.ca-warn { background: rgba(251,191,36,.06); border-color: var(--conf); color: var(--conf); }
+        [data-theme="dark"] .ca.ca-bad { background: rgba(248,113,113,.06); border-color: var(--pend); color: var(--pend); }
+        .ca b { color: inherit; font-weight: 700; }
+
+        /* ── Limit note  ───────────────────────── */
+        .limit-note {
+            margin-top: 8px; padding: 8px 12px; border-radius: 7px;
+            font-size: 11px; color: var(--tx2); background: var(--s2);
+            border: 1px dashed var(--bd); line-height: 1.5;
+        }
+
+        /* ── Empty state ───────────────────────── */
+        .empty { text-align: center; padding: 48px 16px; color: var(--tx2); }
+        .empty .ei { margin-bottom: 14px; display: flex; justify-content: center; }
+        .empty .ei svg { width: 40px; height: 40px; opacity: 0.4; }
+        .empty p { font-size: 13px; }
+
+        /* ── Tooltip overlay ───────────────────── */
+        #tt {
+            position: fixed; z-index: 9999; background: var(--s1);
+            border: 1.5px solid var(--bd);
+            border-radius: 9px; padding: 10px 14px; font-size: 12px;
+            color: var(--tx); width: max-content; max-width: 360px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            pointer-events: none; line-height: 1.5; display: none;
+        }
+        #tt b { color: var(--ac); display: block; margin-bottom: 4px; font-size: 13px; }
+        #tt .tr { display: flex; justify-content: space-between; gap: 14px; margin-top: 3px; }
+        #tt .tl2 { color: var(--tx2); }
+        .tv { font-weight: 700; }
+        #tt .tn { color: var(--tx2); font-size: 10px; margin-top: 6px; padding-top: 5px; border-top: 1px solid var(--bd); }
+
+        /* ── Help icon ─────────────────────────── */
+        .hi {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: var(--s2); color: var(--tx2);
+            font-size: 9px; cursor: help; margin-left: 4px; flex-shrink: 0;
+            font-style: normal; border: 1.5px solid var(--bd);
+        }
+        .hi:hover { background: var(--ac); color: #fff; border-color: var(--ac); }
+
+        /* ── Popover ────────────────────────────── */
+        #pop {
+            position: fixed; z-index: 9998; background: var(--s1);
+            border: 1.5px solid var(--bd); border-radius: 10px;
+            padding: 12px 15px; font-size: 12px; color: var(--tx);
+            max-width: 280px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            pointer-events: none; line-height: 1.7; display: none;
+        }
+        #pop b { color: var(--ac); font-size: 13px; display: block; margin-bottom: 4px; }
+
+        /* ── Small-N warning ───────────────────── */
+        .sn-warn { font-size: 10px; color: var(--conf); font-weight: 700; margin-left: 3px; }
+
+        /* ── Scrollbar ─────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--tx2); }
+
+        /* ── Table/Chart Expand Modal ──────────── */
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+            z-index: 9998; display: none;
+        }
+        #modal-overlay.active { display: block; }
+        .cd.is-expanded {
+            position: fixed !important; top: 5vh; left: 5vw; width: 90vw; height: 90vh;
+            z-index: 9999; margin: 0; max-height: none;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5); border: 1px solid var(--bd);
+            display: flex; flex-direction: column;
+        }
+        /* Content divs get flex:1 — exclude title (.ct), annotation (.ca), chart-note (.cn) */
+        .cd.is-expanded > div:not(.ct):not(.ca):not(.cn) { flex: 1; overflow-y: auto; max-height: none !important; }
+        .cd.is-expanded .cn { flex: 0 0 auto; }
+        .cd.is-expanded .cw { height: auto !important; flex: 1; min-height: 200px; }
+        /* When chart + table are both shown, cap chart at 55% so table has room */
+        .cd.is-expanded.has-drill .cw { flex: 0 0 55% !important; min-height: 200px; }
+        .cd.is-expanded .dt { font-size: 13px; }
+        .cd.is-expanded .dt th, .cd.is-expanded .dt td { padding: 12px 16px; }
+        .btn-expand {
+            background: transparent; border: none; color: var(--tx2);
+            cursor: pointer; padding: 4px; border-radius: 4px;
+            margin-left: auto; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-expand:hover { background: var(--s2); color: var(--tx); }
+        .cd.is-expanded .btn-expand svg { transform: rotate(180deg); }
+
+
+        /* ── Responsive ────────────────────────── */
+        @media(max-width:900px) {
+            .page { padding: 16px; }
+            .g2, .g3 { grid-template-columns: 1fr; }
+            .kr3 { grid-template-columns: 1fr 1fr 1fr; }
+            .kr4, .kr5 { grid-template-columns: 1fr 1fr; }
+            .rb { grid-template-columns: 1fr; }
+            .rb-col:first-of-type { border-right: none; border-bottom: 1px solid var(--bd); }
+        }
+
+        @media print {
+            .fbar, .xbtn { display: none !important; }
+            .tc { display: block !important; }
+            .cd, .kc { break-inside: avoid; }
+            [data-theme="dark"] { --bg:#fff; --s1:#f8f8f8; --s2:#f0f0f0; --bd:#ddd; --tx:#111; --tx2:#555; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="tt"></div>
+    <div id="pop"></div>
+    <div id="modal-overlay"></div>
+
+    <div class="hdr">
+        <div class="hdr-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </div>
+        <h1>Sunflower Dashboard</h1>
+        <span class="rng" id="rng"></span>
+        <div class="theme-toggle" id="thbtn" onclick="toggleTheme()" title="Toggle dark/light mode">
+            <span class="th-opt active" id="th-light">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                Light
+            </span>
+            <span class="th-opt" id="th-dark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                Dark
+            </span>
+        </div>
+    </div>
+    <div class="fbar">
+        <span class="fl">Period</span>
+        <button class="pb" onclick="sp(3,this)">3d</button>
+        <button class="pb" onclick="sp(7,this)">7d</button>
+        <button class="pb on" onclick="sp(14,this)">14d</button>
+        <button class="pb" onclick="sp(30,this)">30d</button>
+        <button class="pb" onclick="sp(0,this)">All</button>
+        <span class="sep">|</span>
+        <input type="date" id="df" class="di" onchange="scr()">
+        <span style="color:var(--tx2)">→</span>
+        <input type="date" id="dt" class="di" onchange="scr()">
+        <span class="sep">|</span>
+        <span class="fl">Team</span>
+        <select id="tf" class="ts" onchange="S.team=this.value;rAll()">
+            <option value="">All teams</option>
+        </select>
+        <button class="frsh" id="frsh" onclick="refetch()" title="Pull the latest rows from Google Sheets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Refresh</button>
+        <span class="synced" id="synced"></span>
+        <button class="frst" onclick="rst()">↺ Reset filter</button>
+    </div>
+
+    <main class="page">
+        <div class="rb">
+            <div class="rb-head">
+                <div class="rb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                <div><div class="rb-title">Meeting Review Overview</div><div class="rb-purpose">Is the review pipeline flowing, or is it stuck?</div></div>
+            </div>
+            <div class="rb-col">
+                <div class="rb-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> How to Read</div>
+                <div class="rb-items">
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Start at the <b>KPI row</b>, then scan the charts for the team or day that breaks the pattern.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Colour is consistent everywhere: <b>green</b> = reviewed, <b>amber</b> = waiting, <b>red</b> = behind target.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Each card has its own <b>?</b> tooltip explaining what it measures and how to read it.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Everything respects the <b>period and team filters</b> at the top of the page.</span></div>
+                </div>
+            </div>
+            <div class="rb-col">
+                <div class="rb-label act"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Actions</div>
+                <div class="rb-items">
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--conf)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>A team below 50%</b> → talk to the lead and find what is blocking them.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--conf)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>Review time drifting past SLA</b> → files are being forgotten or reviewers are overloaded.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--pend)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><span><b>Backlog above 50%</b> → escalate to free the queue before it compounds.</span></div>
+                </div>
+            </div>
+        </div>
+        <div id="ceo-ins"></div>
+        <div class="kr kr5" id="ceo-k"></div>
+        <div class="g2">
+            <div class="cd">
+                <div class="ct"><span class="dot" style="background:var(--ac)"></span>Status by <span id="c1-unit">Day</span> <i class="hi"
+                        data-pop="Stacked bar of raw files per day by status.||🟢 Reviewed: done · 🟡 Ready for Review: awaiting review||Days with tall yellow bars = review backlog building.">?</i>
+                </div>
+                <div class="cw"><canvas id="ceo-c1"></canvas></div>
+                <div class="ca" id="ca-ceo-c1"></div>
+            </div>
+            <div class="cd">
+                <div class="ct"><span class="dot" style="background:var(--ac2)"></span>Review Rate by Team <i class="hi"
+                        data-pop="% of files reviewed out of each team's total raw files.||🟢 ≥80% healthy · 🟡 50–80% · 🔴 <50% bottleneck||(n=X) = small sample, interpret with caution.">?</i>
+                </div>
+                <div class="cw tl"><canvas id="ceo-c2"></canvas></div>
+                <div class="cn" id="cn-ceo-c2"></div>
+                <div class="ca" id="ca-ceo-c2"></div>
+            </div>
+        </div>
+        <div class="g2">
+            <div class="cd">
+                <div class="ct"><span class="dot" style="background:var(--conf)"></span>Pipeline Overview <i class="hi"
+                        data-pop="Pipeline snapshot: Ready for Review → Reviewed.||Shows the split between reviewed and still-pending-review files.">?</i>
+                </div>
+                <div class="cw donut"><canvas id="ceo-c3"></canvas></div>
+                <div class="ca" id="ca-ceo-c3"></div>
+            </div>
+            <div class="cd">
+                <div class="ct"><span class="dot" style="background:var(--ac2)"></span>Review Time Distribution <i
+                        class="hi"
+                        data-pop="Files bucketed by how long their review took.||Ideal: most files in <1h, 1-4h buckets.||4h+ = outside SLA.">?</i>
+                </div>
+                <div class="cw donut"><canvas id="cto-c2"></canvas></div>
+                <div class="ca" id="ca-cto-c2"></div>
+            </div>
+        </div>
+        <div class="g2">
+            <div class="cd">
+                <div class="ct"><span class="dot" style="background:var(--conf)"></span>File Distribution by Team <i
+                        class="hi"
+                        data-pop="Files per team in the selected period, highest first (top 12).||One column towering over the rest = workload concentrated on a single team.">?</i>
+                </div>
+                <div class="cw"><canvas id="coo-c3"></canvas></div>
+                <div class="ca" id="ca-coo-c3"></div>
+            </div>
+            <div class="cd">
+                <div class="ct"><span class="dot" style="background:var(--pend)"></span>Backlog by Team <i class="hi"
+                        data-pop="Teams with unprocessed files (Ready for Review).||Backlog % = Unreviewed/Total. >50% = needs attention.">?</i>
+                </div>
+                <div id="ceo-t1" class="tbl-wrap"></div>
+                <div class="ca" id="ca-ceo-t1"></div>
+            </div>
+        </div>
+        <div class="fw cd">
+            <div class="ct"><span class="dot" style="background:var(--ac)"></span>Team Activity Heatmap <i class="hi"
+                    data-pop="Each cell = raw files for that team on that day.||Darker = more files. Pink column background = weekend.||Hover cell for detail.">?</i>
+            </div>
+            <div id="pm-hm" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+                <div class="empty">
+                    <div class="ei"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+            <div class="ca" id="ca-pm-hm"></div>
+        </div>
+    </main>
+
+
+    <script>
+        // ===== DATA =====
+        ;
+        let R = [], V = [], TEAM_N = {}, UNTAGGED_COUNT = 0;
+        let S = { df: null, dt: null, team: '' };
+
+        // Hiển thị thời điểm sync gần nhất của backend (giờ VN, như sheet ghi).
+        async function showSyncedAt() {
+            const el = document.getElementById('synced');
+            if (!el) return;
+            try {
+                const m = await (await fetch('/api/meta')).json();
+                if (!m.last_synced_at) { el.textContent = ''; return; }
+                const when = new Date(m.last_synced_at.replace(' ', 'T') + 'Z');
+                const mins = Math.floor((Date.now() - when.getTime()) / 60000);
+                const ago = mins < 1 ? 'just now' : mins < 60 ? mins + 'm ago' : Math.floor(mins / 60) + 'h ago';
+                el.textContent = m.last_status === 'ok' ? 'synced ' + ago : m.last_status;
+                el.style.color = m.last_status === 'ok' ? 'var(--tx2)' : 'var(--pend)';
+            } catch (e) { el.textContent = ''; }
+        }
+
+        // Nút Refresh: bảo backend kéo lại từ Google Sheets rồi vẽ lại trang.
+        async function refetch() {
+            const btn = document.getElementById('frsh');
+            btn.disabled = true; btn.classList.add('spin');
+            const el = document.getElementById('synced');
+            try {
+                const res = await fetch('/api/sync/refresh', { method: 'POST' });
+                const body = await res.json().catch(() => ({}));
+                if (res.status === 429) {
+                    el.textContent = 'wait ' + (body.retryInSeconds || 20) + 's';
+                    el.style.color = 'var(--conf)';
+                } else if (!res.ok || body.ok === false) {
+                    throw new Error(body.error || 'sync failed');
+                } else {
+                    await fetchData();
+                }
+            } catch (err) {
+                console.error('[Refresh]', err);
+                el.textContent = 'refresh failed';
+                el.style.color = 'var(--pend)';
+            } finally {
+                btn.disabled = false; btn.classList.remove('spin');
+                setTimeout(showSyncedAt, 2500);
+            }
+        }
+
+        async function fetchData() {
+            document.getElementById('rng').innerHTML = '<span id="loader">Loading Dashboard Data...</span>';
+            try {
+                const res = await fetch('/api/data');
+                if (!res.ok) throw new Error('API Request Failed');
+                const data = await res.json();
+                R = data.raw;
+                V = data.reviewed;
+                TEAM_N = data.team_n;
+                UNTAGGED_COUNT = data.untagged_raw || 0;
+                init();
+                showSyncedAt();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('rng').innerHTML = '<span class="rng-badge" style="color:var(--pend)">Error loading data.</span>';
+            }
+        }
+        const CH = {};
+
+        // ===== SVG ICON CONSTANTS =====
+        const _s = (path, color, size) => `<svg width="${size||13}" height="${size||13}" viewBox="0 0 24 24" fill="none" stroke="${color||'currentColor'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;flex-shrink:0">${path}</svg>`;
+        const ICO = {
+            ok:     (sz) => _s('<polyline points="20 6 9 17 4 12"/>','var(--rev)',sz),
+            warn:   (sz) => _s('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>','var(--conf)',sz),
+            alert:  (sz) => _s('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>','var(--pend)',sz),
+            info:   (sz) => _s('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>','var(--ac)',sz),
+            pin:    (sz) => _s('<line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>','var(--tx2)',sz),
+            clock:  (sz) => _s('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>','var(--conf)',sz),
+            chart:  (sz) => _s('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>','var(--ac2)',sz),
+            target: (sz) => _s('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>','var(--ac)',sz),
+            search: (sz) => _s('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>','currentColor',sz||32),
+            cal:    (sz) => _s('<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>','currentColor',sz||32),
+            check:  (sz) => _s('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>','var(--rev)',sz||32),
+            gear:   (sz) => _s('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>','currentColor',sz),
+        };
+
+        // KPI tooltip helper: builds a definition row for term explanation
+        function ttDef(term, desc) {
+            return '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--bd)">'
+                + '<div style="font-weight:700;font-size:11px;color:var(--tx);margin-bottom:2px">' + term + '</div>'
+                + '<div style="color:var(--tx2);font-size:10px;line-height:1.5">' + desc + '</div>'
+                + '</div>';
+        }
+
+        // ===== TOOLTIP =====
+        const ttEl = document.getElementById('tt'), popEl = document.getElementById('pop');
+        function showTT(e, html) { ttEl.innerHTML = html; ttEl.style.display = 'block'; mvTT(e) }
+        function hideTT() { ttEl.style.display = 'none' }
+        function mvTT(e) { const x = e.clientX, y = e.clientY, w = ttEl.offsetWidth, h = ttEl.offsetHeight, vw = window.innerWidth, vh = window.innerHeight; ttEl.style.left = (x + w + 16 > vw ? x - w - 8 : x + 12) + 'px'; ttEl.style.top = (y + h + 16 > vh ? y - h - 8 : y + 10) + 'px' }
+        document.addEventListener('mousemove', e => { if (ttEl.style.display === 'block') mvTT(e) });
+
+        // Help icon popover
+        document.addEventListener('mouseover', function (e) {
+            const hi = e.target.closest('.hi');
+            if (!hi) return;
+            const parts = (hi.dataset.pop || '').split('||');
+            const title = parts[0];
+            let html = '<b>' + title + '</b>';
+            parts.slice(1).forEach(p => { if (p) html += '<div style="color:var(--tx2);margin-top:2px">' + p + '</div>' });
+            popEl.innerHTML = html; popEl.style.display = 'block';
+            const r = hi.getBoundingClientRect(), pw = popEl.offsetWidth, ph = popEl.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+            popEl.style.left = (r.right + pw + 8 > vw ? r.left - pw - 4 : r.right + 4) + 'px';
+            popEl.style.top = (r.top + ph > vh ? r.bottom - ph : r.top) + 'px';
+        });
+        document.addEventListener('mouseout', e => { if (e.target.closest('.hi')) popEl.style.display = 'none' });
+
+        // KPI tooltip
+        function kpiTT(id, html) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('mouseenter', e => showTT(e, html));
+            el.addEventListener('mouseleave', hideTT);
+        }
+
+        // ===== UTILS =====
+        function dc(id) { if (CH[id]) { CH[id].destroy(); delete CH[id] } }
+        function pd(s) { return new Date(s + 'T00:00:00') }
+        function fd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') }
+        function ad(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r }
+        function dr(f, t) { const a = []; let d = new Date(f); while (d <= t) { a.push(fd(d)); d = ad(d, 1) } return a }
+        // Fix 7: filter with empty-state awareness
+        function fl(a) { return a.filter(r => { if (S.df && r.date_str < S.df) return false; if (S.dt && r.date_str > S.dt) return false; if (S.team && r.team !== S.team) return false; return true }) }
+        // D3 Category10 + extended set — maximally distinct categorical palette for 10+ series
+        // Categorical hues in fixed order — validated for CVD separation (light + dark surfaces).
+        // Assigned by team index, never cycled through generated hues.
+        const P_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
+        const P_DARK  = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'];
+        const isDarkTheme = () => document.documentElement.dataset.theme === 'dark';
+
+        // Sequential ramp for ordered buckets (review-time bands): light→dark on a light
+        // surface, dark→light on a dark one, so "slower" always reads as the stronger mark.
+        const RAMP_LIGHT = ['#cde2fb', '#6da7ec', '#256abf', '#0d366b'];
+        const RAMP_DARK  = ['#0d366b', '#256abf', '#6da7ec', '#cde2fb'];
+        const ramp4 = () => (isDarkTheme() ? RAMP_DARK : RAMP_LIGHT);
+        // UNTAGGED is not a team: neutral grey, and it never consumes a categorical slot.
+        const UNTAGGED_COLOR = () => (isDarkTheme() ? '#6b6b68' : '#9a9a94');
+        const sortTeams = (a, b) => (a === 'UNTAGGED') - (b === 'UNTAGGED') || a.localeCompare(b);
+        function tc(tag) { if (tag === 'UNTAGGED') return UNTAGGED_COLOR(); const pal = isDarkTheme() ? P_DARK : P_LIGHT; const t = [...new Set(R.map(r => r.team))].filter(x => x && x !== 'UNTAGGED').sort(); return pal[t.indexOf(tag) % pal.length] || pal[0] }
+
+        function avg(a) { return a.length ? a.reduce((s, v) => s + v, 0) / a.length : 0 }
+        function med(a) { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2 }
+        function p90f(a) { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length * .9)] || s[s.length - 1] }
+        function pct(a, b) { return b > 0 ? (a / b * 100).toFixed(1) : '0.0' }
+        function iw(d) { const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dn = dt.getUTCDay() || 7; dt.setUTCDate(dt.getUTCDate() + 4 - dn); const ys = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1)); return Math.ceil((((dt - ys) / 864e5) + 1) / 7) }
+        function wk(ds) { const dt = pd(ds); return 'W' + String(iw(dt)).padStart(2, '0') }
+
+        // Trục thời gian tự gộp khi khoảng chọn dài: một ngày một cột chỉ đọc được
+        // trong phạm vi ~1 tháng, quá đó thì cột thưa và nhãn chồng nhau.
+        const MAX_DAILY_BUCKETS = 31;   // trên mức này gộp theo tuần
+        const MAX_WEEKLY_BUCKETS = 26;  // trên mức này gộp theo tháng
+        const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        function mondayOf(ds) { const dt = pd(ds); return fd(ad(dt, -((dt.getDay() + 6) % 7))) }
+
+        function timeBuckets(days) {
+            if (days.length <= MAX_DAILY_BUCKETS) {
+                return { unit: 'Day', keys: days, keyOf: d => d, labelOf: k => k.slice(5) };
+            }
+            if (days.length <= MAX_WEEKLY_BUCKETS * 7) {
+                const keys = [...new Set(days.map(mondayOf))];
+                return {
+                    unit: 'Week', keys, keyOf: mondayOf,
+                    labelOf: k => { const dt = pd(k); return dt.getDate() + ' ' + MONTHS[dt.getMonth()] },
+                };
+            }
+            const keys = [...new Set(days.map(d => d.slice(0, 7)))];
+            return {
+                unit: 'Month', keys, keyOf: d => d.slice(0, 7),
+                labelOf: k => MONTHS[+k.slice(5, 7) - 1] + ' ' + k.slice(2, 4),
+            };
+        }
+
+        // Fix 1: small-n badge
+        function nBadge(team, n) {
+            n = n || TEAM_N[team] || 0;
+            if (n <= 3) return ' <span class="sn-warn">' + ICO.warn() + 'n=' + n + '</span>';
+            if (n <= 5) return ' <span style="font-size:9px;color:var(--tx2)">(n=' + n + ')</span>';
+            return '';
+        }
+
+        // Base chart opts
+        function gv(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() }
+        function btt() { return { backgroundColor: gv('--s1')||'#fff', titleColor: gv('--ac')||'#f97316', bodyColor: gv('--tx')||'#18181b', borderColor: gv('--bd')||'#e4e4e7', borderWidth: 1.5, padding: 12, cornerRadius: 9, boxPadding: 5, displayColors: true, usePointStyle: true, boxWidth: 8, boxHeight: 8 } }
+        function bd() { const tx2 = gv('--tx2')||'#71717a'; const bd2 = gv('--bd')||'#e4e4e7'; return { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tx2, font: { size: 10, family:'Inter,system-ui,sans-serif' } } }, tooltip: btt() }, scales: { x: { ticks: { color: tx2, font: { size: 9 } }, grid: { color: bd2 } }, y: { ticks: { color: tx2, font: { size: 9 } }, grid: { color: bd2 } } } } }
+        // Donut base opts (maintainAspectRatio:true keeps circle shape)
+        function bdo() { return { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'right', labels: { color: gv('--tx2'), font: { size: 10 } } }, tooltip: btt() } } }
+
+        // Fix 7: empty state helper
+        function emptyState(containerId, msg) {
+            document.getElementById(containerId).innerHTML = '<div class="empty"><div class="ei">' + ICO.search(40) + '</div><p>' + msg + '</p></div>';
+        }
+        function emptyChart(canvasId, msg) {
+            dc(canvasId);
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.offsetWidth || 300, h = canvas.offsetHeight || 200;
+            canvas.width = w; canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--tx2').trim() || '#6b7280'; ctx.textAlign = 'center'; ctx.font = '12px Inter,sans-serif';
+            ctx.fillText(msg, w / 2, h / 2);
+        }
+        function setCA(id, lvl, html) { const el = document.getElementById(id); if (!el) return; el.className = 'ca ca-' + lvl; el.innerHTML = html; el.style.display = 'block' }
+
+        // ===== INIT =====
+        function init() {
+            const mx = R.reduce((m, r) => r.date_str > m ? r.date_str : m, '2000');
+            const mn = R.reduce((m, r) => r.date_str < m ? r.date_str : m, '9999');
+            document.getElementById('rng').innerHTML = '<span class="rng-badge"><span class="rng-label">Data</span> ' + mn + ' → ' + mx + '</span>';
+            S.dt = mx; S.df = fd(ad(pd(mx), -13));
+            document.getElementById('df').value = S.df;
+            document.getElementById('dt').value = S.dt;
+            const ts = [...new Set(R.map(r => r.team))].filter(Boolean).sort(sortTeams);
+            const sel = document.getElementById('tf');
+            ts.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t + (TEAM_N[t] <= 3 ? ' (!)' : ''); sel.appendChild(o) });
+            rAll();
+        }
+        function sp(d, b) { document.querySelectorAll('.pb').forEach(x => x.classList.remove('on')); b.classList.add('on'); const mx = R.reduce((m, r) => r.date_str > m ? r.date_str : m, '2000'); S.dt = mx; S.df = d === 0 ? R.reduce((m, r) => r.date_str < m ? r.date_str : m, '9999') : fd(ad(pd(mx), -(d - 1))); document.getElementById('df').value = S.df; document.getElementById('dt').value = S.dt; rAll() }
+        function scr() { document.querySelectorAll('.pb').forEach(x => x.classList.remove('on')); S.df = document.getElementById('df').value; S.dt = document.getElementById('dt').value; rAll(300) }
+        function rst() { document.getElementById('tf').value = ''; S.team = ''; sp(14, document.querySelectorAll('.pb')[2]) }
+        function toggleTheme() { const html = document.documentElement; const dark = html.dataset.theme === 'dark'; html.dataset.theme = dark ? '' : 'dark'; document.getElementById('th-light').classList.toggle('active', dark); document.getElementById('th-dark').classList.toggle('active', !dark); rAll() }
+
+        // Compute a card's natural height from its children (ignores CSS Grid row stretch)
+        function cardNaturalH(cd) {
+            const cs = getComputedStyle(cd);
+            let h = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+            for (const child of cd.children) {
+                if (getComputedStyle(child).display === 'none') continue;
+                const ccs = getComputedStyle(child);
+                h += child.offsetHeight + parseFloat(ccs.marginTop) + parseFloat(ccs.marginBottom);
+            }
+            return h;
+        }
+
+        function matchCardHeights() {
+            // Reset explicit heights first (skip expanded cards)
+            document.querySelectorAll('.g2 > .cd, .g3 > .cd').forEach(cd => {
+                if (!cd.classList.contains('is-expanded')) cd.style.height = '';
+            });
+            document.querySelectorAll('.g2, .g3').forEach(grid => {
+                const cards = [...grid.children].filter(el => el.classList.contains('cd') && !el.classList.contains('is-expanded'));
+                // Group by offsetTop — same row = same top in CSS Grid regardless of cell heights
+                const rows = {};
+                cards.forEach(cd => {
+                    const key = Math.round(cd.getBoundingClientRect().top);
+                    (rows[key] = rows[key] || []).push(cd);
+                });
+                Object.values(rows).forEach(rowCards => {
+                    const chartCards = rowCards.filter(cd => cd.querySelector('.cw'));
+                    const tableCards = rowCards.filter(cd => cd.querySelector('.tbl-wrap') && !cd.querySelector('.cw'));
+                    if (!chartCards.length || !tableCards.length) return;
+                    // Use natural height from children — not offsetHeight which includes grid stretch
+                    const refH = Math.max(...chartCards.map(cardNaturalH));
+                    if (refH > 0) tableCards.forEach(cd => { cd.style.height = refH + 'px'; });
+                });
+            });
+        }
+        window.addEventListener('resize', () => { matchCardHeights(); });
+
+        // ===== EXPAND (tables + charts) =====
+        const EXPAND_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+
+
+        function resizeChartsIn(cd) {
+            cd.querySelectorAll('canvas').forEach(canvas => { if (CH[canvas.id]) CH[canvas.id].resize(); });
+        }
+
+
+        function removeDrillTable(cd) {
+            const inj = cd.querySelector('.injected-drill-table');
+            if (inj) inj.remove();
+            cd.classList.remove('has-drill');
+        }
+
+        function initTableExpanders() {
+            document.querySelectorAll('.cd').forEach(cd => {
+                if (cd.querySelector('#pm-hm')) return; // skip heatmap card
+                const hasContent = cd.querySelector('.cw') || cd.querySelector('#ceo-t1');
+                if (hasContent) {
+                    const ct = cd.querySelector('.ct');
+                    if (ct && !ct.querySelector('.btn-expand')) {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn-expand';
+                        btn.title = 'Expand';
+                        btn.onclick = () => toggleExpand(cd);
+                        btn.innerHTML = EXPAND_SVG;
+                        ct.appendChild(btn);
+                    }
+                }
+            });
+        }
+
+        function collapseExpanded(cd) {
+            removeDrillTable(cd);
+            cd.classList.remove('is-expanded');
+            setTimeout(() => resizeChartsIn(cd), 50);
+        }
+
+        function toggleExpand(cd) {
+            const overlay = document.getElementById('modal-overlay');
+            if (cd.classList.contains('is-expanded')) {
+                collapseExpanded(cd);
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            } else {
+                document.querySelectorAll('.cd.is-expanded').forEach(el => collapseExpanded(el));
+                cd.classList.add('is-expanded');
+                overlay.classList.add('active');
+                overlay.onclick = () => {
+                    collapseExpanded(cd);
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                };
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => resizeChartsIn(cd), 50);
+            }
+        }
+        // Initialize immediately since the containers are static
+        initTableExpanders();
+
+        // ==================== CEO ====================
+        function rCEO() {
+            const r = fl(R), v = fl(V);
+            if (!r.length) { document.getElementById('ceo-ins').innerHTML = '';['ceo-c1', 'ceo-c2', 'ceo-c3'].forEach(dc); document.getElementById('ceo-t1').innerHTML = ''; emptyState('ceo-k', 'No data for this filter. Try expanding the date range or selecting a different team.'); return }
+            const tot = r.length, rev = r.filter(x => x.status_clean === 'reviewed').length, conf = r.filter(x => x.status_clean === 'confirmed').length;
+            const rr = pct(rev, tot);
+            const avgRT = v.length ? avg(v.map(x => x.review_hours)).toFixed(1) : 'N/A';
+            const hrsAll = v.map(x => x.review_hours);
+            const medRT = v.length ? med(hrsAll).toFixed(1) : 'N/A';
+            const onTime4 = v.filter(x => x.review_hours <= 4).length;
+            const onTimeP = v.length ? pct(onTime4, v.length) : '0';
+            const unt = UNTAGGED_COUNT;
+            const days = dr(pd(S.df), pd(S.dt));
+            // Fix 4: true WoW — compare this week vs prev week
+            const today = pd(S.dt);
+            const thisWeekStart = fd(ad(today, -6)), prevWeekStart = fd(ad(today, -13)), prevWeekEnd = fd(ad(today, -7));
+            const thisW = r.filter(x => x.date_str >= thisWeekStart && x.date_str <= S.dt).length;
+            const prevW = r.filter(x => x.date_str >= prevWeekStart && x.date_str <= prevWeekEnd).length;
+            const wow = prevW > 0 ? ((thisW - prevW) / prevW * 100).toFixed(0) : '+∞';
+            const wowSign = parseFloat(wow) >= 0 ? '+' : '';
+
+            const ts2 = {}; r.forEach(x => { if (!x.team) return; if (!ts2[x.team]) ts2[x.team] = { t: 0, r: 0 }; ts2[x.team].t++; if (x.status_clean === 'reviewed') ts2[x.team].r++ });
+            const alerts = [];
+            if (parseFloat(avgRT) > 8) alerts.push('Avg review time <b>' + avgRT + 'h</b> — ' + (parseFloat(avgRT) / 4).toFixed(1) + '× the 4h SLA target.');
+            const lowTeams = Object.entries(ts2).filter(([t, s]) => s.t >= 3 && s.r / s.t < 0.5).map(([t]) => t);
+            if (lowTeams.length) alerts.push('Teams with review rate <50%: <b>' + lowTeams.join(', ') + '</b> — needs unblocking.');
+            // Fix 8 untagged alert in CEO
+            if (unt > 0) alerts.push('<b>' + unt + ' UNTAGGED files</b> — missing team tag in workflow, fix immediately.');
+            document.getElementById('ceo-ins').innerHTML = alerts.length
+                ? '<div class="ab"><div class="ab-header">' + ICO.warn(16) + ' Alert</div>' + '<ul class="ab-list">' + alerts.map(a => '<li>' + a + '</li>').join('') + '</ul></div>'
+                : '<div class="ib">' + ICO.ok(16) + ' Pipeline healthy — review rate <b>' + rr + '%</b>, avg review <b>' + avgRT + 'h</b></div>';
+
+            const rateColor = parseFloat(rr) >= 80 ? 'var(--rev)' : parseFloat(rr) >= 50 ? 'var(--conf)' : 'var(--pend)';
+            const wowColor = parseFloat(wow) >= 0 ? 'var(--rev)' : 'var(--pend)';
+            document.getElementById('ceo-k').innerHTML =
+                '<div class="kc prp" id="kpi-tot"><div class="kl">Total Files</div><div class="kv prp">' + tot + '</div><div class="kd"><div class="kdr"><span class="kdl"><span class="sd sr"></span>Reviewed</span><span class="kdv sg">' + rev + '</span></div><div class="kdr"><span class="kdl"><span class="sd sc"></span>Ready for Review</span><span class="kdv sw">' + conf + '</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>WoW (7d)</span><span class="tgt-val" style="color:' + wowColor + '">' + wowSign + wow + '%</span></div></div>' +
+                '<div class="kc grn" id="kpi-rev"><div class="kl">Reviewed</div><div class="kv grn">' + rev + '</div><div class="kd"><div class="kdr"><span class="kdl">Review rate</span><span class="kdv" style="color:' + rateColor + '">' + rr + '%</span></div><div class="kdr"><span class="kdl">Avg review time</span><span class="kdv">' + avgRT + 'h</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Target</span><span class="tgt-val">≥80% rate</span></div></div>' +
+                '<div class="kc ylw" id="kpi-conf"><div class="kl">Ready for Review</div><div class="kv ylw">' + conf + '</div><div class="kd"><div class="kdr"><span class="kdl">Awaiting reviewer</span><span class="kdv" style="color:var(--tx2)">→ review</span></div></div><div class="tgt"><span class="tgt-lbl"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>SLA</span><span class="tgt-val">≤4h</span></div></div>' +
+                '<div class="kc tel" id="kpi-avg"><div class="kl">Avg / Median</div><div class="kv tel">' + avgRT + 'h</div><div class="kd"><div class="kdr"><span class="kdl">Median</span><span class="kdv sw">' + medRT + 'h</span></div></div></div>' +
+                '<div class="kc grn" id="kpi-ontime"><div class="kl">On-time (≤4h)</div><div class="kv grn">' + onTimeP + '%</div><div class="kd"><div class="kdr"><span class="kdl">Within SLA</span><span class="kdv sw">' + onTime4 + ' / ' + v.length + '</span></div></div></div>';
+            // Attach KPI tooltips
+            kpiTT('kpi-tot',
+                '<b>Total Files</b>'
+                + '<div class="tr"><span class="tl2">Period</span><span class="tv">' + S.df + ' → ' + S.dt + '</span></div>'
+                + '<div class="tr"><span class="tl2">Reviewed</span><span class="tv">' + rev + '</span></div>'
+                + '<div class="tr"><span class="tl2">Ready for Review</span><span class="tv">' + conf + '</span></div>'
+                + ttDef('WoW (7d)', 'Week-over-Week change: compares this week\'s total file count to the prior 7-day window. Positive % = more files coming in; negative = volume dropping.')
+            );
+            kpiTT('kpi-rev',
+                '<b>Reviewed</b>'
+                + '<div class="tr"><span class="tl2">Review rate</span><span class="tv">' + rr + '%</span></div>'
+                + '<div class="tr"><span class="tl2">Avg review time</span><span class="tv">' + avgRT + 'h</span></div>'
+                + ttDef('Review Rate', '% of all files that reached Reviewed status. Target ≥80%. Below 50% = pipeline bottleneck — reviewers can\'t keep up.')
+                + ttDef('Avg Review Time', 'Mean hours from file logged to review complete. Target ≤4h. Outliers skew this up — see Median (P50) for a fairer view.')
+            );
+            kpiTT('kpi-conf',
+                '<b>Ready for Review</b>'
+                + '<div class="tr"><span class="tl2">Awaiting reviewer</span><span class="tv">' + conf + ' files</span></div>'
+                + ttDef('Ready for Review', 'Files confirmed and waiting for a reviewer to be assigned. Each should be claimed within 4h (SLA). Growing backlog = reviewer shortage.')
+                + ttDef('SLA', 'Service Level Agreement — each file must be reviewed within 4h of confirmation. Every file here is an active SLA clock.')
+            );
+
+            // Stacked bar by day
+            const B = timeBuckets(days);
+            const byD = {}; B.keys.forEach(k => { byD[k] = { reviewed: 0, confirmed: 0 } });
+            r.forEach(x => { const k = B.keyOf(x.date_str); if (byD[k] && (x.status_clean === 'reviewed' || x.status_clean === 'confirmed')) byD[k][x.status_clean] = (byD[k][x.status_clean] || 0) + 1 });
+            const o1 = bd(); o1.plugins.tooltip = { ...btt(), callbacks: { title: i => [i[0].label], label: i => { const pfx = { Reviewed: '◆', 'Ready for Review': '◇' }; return (pfx[i.dataset.label] || '·') + ' ' + i.dataset.label + ': ' + i.raw }, afterBody: i => { const s = byD[B.keys[i[0].dataIndex]]; if (!s) return []; const tot2 = s.reviewed + s.confirmed; return ['─────────', '∑ Total: ' + tot2, '% Rate: ' + pct(s.reviewed, tot2) + '%'] } }, mode: 'index' };
+            o1.scales.x.stacked = true; o1.scales.y.stacked = true;
+            dc('ceo-c1'); CH['ceo-c1'] = new Chart(document.getElementById('ceo-c1'), { type: 'bar', data: { labels: B.keys.map(B.labelOf), datasets: [{ label: 'Reviewed', data: B.keys.map(k => byD[k].reviewed), backgroundColor: gv('--rev'), stack: 's', borderWidth: 2, borderColor: gv('--s1'), borderRadius: 4, borderSkipped: false }, { label: 'Ready for Review', data: B.keys.map(k => byD[k].confirmed), backgroundColor: gv('--conf'), stack: 's', borderWidth: 2, borderColor: gv('--s1'), borderRadius: 4, borderSkipped: false }] }, options: o1 });
+            document.getElementById('c1-unit').textContent = B.unit;
+
+            // Review rate by team — Fix 1: small-n badge in labels
+            const teams = Object.keys(ts2).sort((a, b) => (ts2[b].r / ts2[b].t) - (ts2[a].r / ts2[a].t));
+            const o2 = bd(); o2.indexAxis = 'y'; o2.plugins.legend = { display: false };
+            o2.plugins.tooltip = { ...btt(), callbacks: { label: i => { const t = teams[i.dataIndex]; const s = ts2[t]; const n = TEAM_N[t] || s.t; const warn = n <= 3 ? '  (!) Low data — n=' + n + ' files' : ''; const rate = parseFloat(i.raw); const status = rate >= 80 ? '✓ On target' : rate >= 50 ? '~ Watch' : '! Below target'; return ['◆ Rate: ' + i.raw + '%  →  ' + status, '  Reviewed: ' + s.r + ' / ' + s.t + ' files', '  Backlog: ' + (s.t - s.r) + ' files' + warn] } } };
+            o2.scales.x = { ...bd().scales.x, max: 100 };
+            // add (n=X) to labels for small teams
+            const teamLabels = teams.map(t => { const n = TEAM_N[t] || ts2[t].t; return n <= 5 ? t + ' (n=' + n + ')' : t });
+            dc('ceo-c2'); CH['ceo-c2'] = new Chart(document.getElementById('ceo-c2'), { type: 'bar', data: { labels: teamLabels, datasets: [{ data: teams.map(t => pct(ts2[t].r, ts2[t].t)), backgroundColor: teams.map(t => { const rate = ts2[t].r / ts2[t].t; return rate >= .8 ? gv('--rev') : rate >= .5 ? gv('--conf') : gv('--pend') }), borderRadius: 4, borderSkipped: false }] }, options: o2 });
+            const under50 = teams.filter(t => ts2[t].r / ts2[t].t < 0.5 && (TEAM_N[t] || ts2[t].t) > 3);
+            document.getElementById('cn-ceo-c2').innerHTML = under50.length ? ICO.warn() + ' ' + under50.length + ' team <50% rate (sufficient data): ' + under50.join(', ') : ICO.ok() + ' All teams with sufficient data ≥50% rate.';
+
+            // Pipeline donut
+            const o3 = { ...bdo(), plugins: { ...bdo().plugins, tooltip: { ...btt(), callbacks: { label: i => { const total = rev + conf; return i.label + ': ' + i.raw + ' (' + pct(i.raw, total) + '%)' } } } } };
+            dc('ceo-c3'); CH['ceo-c3'] = new Chart(document.getElementById('ceo-c3'), { type: 'doughnut', data: { labels: ['Reviewed (' + rev + ')', 'Ready for Review (' + conf + ')'], datasets: [{ data: [rev, conf], backgroundColor: [gv('--rev'), gv('--conf')], borderWidth: 2, borderColor: gv('--s1') }] }, options: o3 });
+
+            // Backlog table
+            const bl = Object.entries(ts2).map(([tag, s]) => ({ tag, c: r.filter(x => x.team === tag && x.status_clean === 'confirmed').length, t: s.t })).filter(x => x.c > 0).sort((a, b) => b.c - a.c);
+            if (!bl.length) { document.getElementById('ceo-t1').innerHTML = '<div class="empty"><div class="ei">' + ICO.ok(40) + '</div><p>No backlog in this period.</p></div>' }
+            else document.getElementById('ceo-t1').innerHTML = '<table class="dt"><thead><tr><th>Team</th><th title="Confirmed, awaiting reviewer">Ready for Review</th><th title="C/Total">Backlog%</th></tr></thead><tbody>' + bl.map(x => { const bpct = pct(x.c, x.t); const n = TEAM_N[x.tag] || x.t; return '<tr title="' + x.tag + ': ' + x.c + ' ready for review, total ' + x.t + '"><td><span class="tc2">' + x.tag + '</span>' + (n <= 3 ? '<span class="sn-warn"> ' + ICO.warn(9) + 'n=' + n + '</span>' : '') + '</td><td class="sw">' + x.c + '</td><td style="font-weight:600;color:' + (parseFloat(bpct) > 50 ? 'var(--pend)' : 'var(--conf)') + '">' + bpct + '%</td></tr>' }).join('') + '</tbody></table>';
+
+            // === Chart Actions ===
+            // c1: bucket gần nhất có tỉ lệ chưa review cao không
+            const last3 = B.keys.slice(-3); const span = 'last 3 ' + B.unit.toLowerCase() + 's';
+            const l3u = last3.reduce((s, k) => (byD[k]?.confirmed || 0) + s, 0), l3t = last3.reduce((s, k) => (byD[k]?.reviewed || 0) + (byD[k]?.confirmed || 0) + s, 0);
+            const l3pct = l3t > 0 ? (l3u / l3t * 100) : 0;
+            if (l3pct > 40) setCA('ca-ceo-c1', 'bad', '<b>' + l3pct.toFixed(0) + '% unreviewed in ' + span + '</b> → Review backlog building. Assign reviewers now.');
+            else if (l3pct > 20) setCA('ca-ceo-c1', 'warn', '<b>' + l3pct.toFixed(0) + '% unreviewed in ' + span + '</b> → Slowing down. Check which team is falling behind on reviews.');
+            else setCA('ca-ceo-c1', 'ok', 'Unreviewed rate low in ' + span + ' (<b>' + l3pct.toFixed(0) + '%</b>) → Pipeline flowing well.');
+
+            // c2: Review rate by team
+            if (under50.length) setCA('ca-ceo-c2', 'bad', '<b>' + under50.length + ' team review rate <50%:</b> ' + under50.join(', ') + ' → Meet those team leads, find the blocker, set a 48h review deadline.');
+            else { const under80 = teams.filter(t => ts2[t].r / ts2[t].t < 0.8 && (TEAM_N[t] || ts2[t].t) > 3); if (under80.length) setCA('ca-ceo-c2', 'warn', '<b>' + under80.length + ' teams at 50–80% rate:</b> ' + under80.join(', ') + ' → Not critical yet, but monitor. Ask if they need more reviewers.'); else setCA('ca-ceo-c2', 'ok', 'All teams ≥80% review rate → No action needed. Maintain pace.') }
+
+            // c3: Pipeline donut
+            const confPct = tot > 0 ? (conf / tot * 100) : 0;
+            if (confPct > 30) setCA('ca-ceo-c3', 'bad', '<b>' + confPct.toFixed(0) + '% of pipeline awaiting review</b> → Assign reviewers now to clear backlog.');
+            else if (confPct > 15) setCA('ca-ceo-c3', 'warn', '<b>' + confPct.toFixed(0) + '% awaiting review</b> — slightly high. Remind reviewers to pick up files today.');
+            else setCA('ca-ceo-c3', 'ok', 'Pipeline balanced: only <b>' + confPct.toFixed(0) + '% awaiting review</b>. Keep it up.');
+
+            // t1: Backlog table
+            const bl50 = bl.filter(x => pct(x.p + x.c, x.t) > 50);
+            if (bl50.length) setCA('ca-ceo-t1', 'bad', '<b>' + bl50.length + ' teams backlog >50%:</b> ' + bl50.map(x => x.tag).join(', ') + ' → Quick sync with team leads to find root cause and set a clear target to clear backlog this week.');
+            else if (bl.length) setCA('ca-ceo-t1', 'warn', 'Backlog exists but all teams below 50% → Monitor weekly. Intervene if it grows for 2 consecutive weeks.');
+            else setCA('ca-ceo-t1', 'ok', 'No backlog — all teams fully reviewed. Excellent!');
+        }
+
+
+        // ==================== CTO ====================
+
+        // ── Review Time Distribution (mang từ tab CTO) ─────────────
+        function rDist() {
+            const v = fl(V);
+            if (!v.length) { dc('cto-c2'); setCA('ca-cto-c2', 'warn', 'No reviewed files in this period.'); return }
+            const bk = { '<1h': 0, '1-4h': 0, '4-24h': 0, '>24h': 0 };
+            v.forEach(x => { const h = x.review_hours; if (h < 1) bk['<1h']++; else if (h <= 4) bk['1-4h']++; else if (h <= 24) bk['4-24h']++; else bk['>24h']++ });
+            const o2 = { ...bdo(), plugins: { ...bdo().plugins, tooltip: { ...btt(), callbacks: { label: i => [i.label + ': ' + i.raw + ' files', pct(i.raw, v.length) + '% of reviewed', i.dataIndex <= 2 ? 'Within SLA' : 'Outside SLA'] } } } };
+            dc('cto-c2'); CH['cto-c2'] = new Chart(document.getElementById('cto-c2'), { type: 'doughnut', data: { labels: Object.keys(bk), datasets: [{ data: Object.values(bk), backgroundColor: ramp4(), borderWidth: 2, borderColor: gv('--s1') }] }, options: o2 });
+
+            const overSLA = v.filter(x => x.review_hours > 24).length; const overPct = v.length > 0 ? (overSLA / v.length * 100) : 0;
+            if (overPct > 40) setCA('ca-cto-c2', 'bad', '<b>' + overPct.toFixed(0) + '% files outside SLA (>24h)</b> → Critical. Root cause: too few reviewers or process blockage. Fix immediately.');
+            else if (overPct > 20) setCA('ca-cto-c2', 'warn', '<b>' + overPct.toFixed(0) + '% outside SLA</b> — needs improvement. Check "24-72h" group for teams with recurring delays.');
+            else setCA('ca-cto-c2', 'ok', '<b>' + (100 - overPct).toFixed(0) + '% of files reviewed within 24h SLA</b> → Good. Few files are late.');
+        }
+
+        // ── File Distribution by Team (mang từ tab COO, dạng cột) ────
+        function rFileDist() {
+            const r = fl(R);
+            const tot = r.length;
+            if (!tot) { dc('coo-c3'); return }
+            const tmC = {}; r.forEach(x => { if (x.team) tmC[x.team] = (tmC[x.team] || 0) + 1 });
+            const tms = Object.entries(tmC).sort((a, b) => b[1] - a[1]).slice(0, 12);
+            const o3 = bd();
+            o3.plugins.legend = { display: false };
+            o3.scales.y.beginAtZero = true;
+            o3.scales.y.title = { display: true, text: 'Files', color: gv('--tx2'), font: { size: 10 } };
+            o3.plugins.tooltip = { ...btt(), callbacks: { label: i => [i.raw + ' files', pct(i.raw, tot) + '% of total'] } };
+            dc('coo-c3'); CH['coo-c3'] = new Chart(document.getElementById('coo-c3'), { type: 'bar', data: { labels: tms.map(x => x[0]), datasets: [{ label: 'Files', data: tms.map(x => x[1]), backgroundColor: tms.map(x => tc(x[0])), borderWidth: 0, borderRadius: 4 }] }, options: o3 });
+
+            if (tms.length) {
+                const top1Share = tms[0][1] / tot * 100;
+                if (top1Share > 40) setCA('ca-coo-c3', 'warn', '<b>"' + tms[0][0] + '" is ' + top1Share.toFixed(0) + '%</b> of total workload → Imbalanced. Consider redistributing scope or splitting this team.');
+                else setCA('ca-coo-c3', 'ok', 'Workload relatively balanced. Largest team: <b>"' + tms[0][0] + '" (' + top1Share.toFixed(0) + '%)</b>.')
+            }
+        }
+
+        // ── Team Activity Heatmap (mang từ tab PM) ───────────────────
+        function rHeatmap() {
+            const r = fl(R), v = fl(V);
+            const conf = r.filter(x => x.status_clean === 'confirmed');
+            const teams = [...new Set([...v, ...conf].map(x => x.team))].filter(Boolean).sort(sortTeams);
+            const days = dr(pd(S.df), pd(S.dt));
+            if (!teams.length || !days.length) { document.getElementById('pm-hm').innerHTML = '<div class="empty"><p style="color:var(--tx2);font-size:12px">No activity in this period.</p></div>'; return }
+            // Cột heatmap gộp theo cùng quy tắc với Status by Day: chọn "All" mà để
+            // một ngày một cột thì bảng rộng hàng chục nghìn pixel.
+            const HB = timeBuckets(days);
+            const cols = HB.keys, isDaily = HB.unit === 'Day';
+            const hd = {}; teams.forEach(t => { hd[t] = {}; cols.forEach(k => { hd[t][k] = 0 }) });
+            r.forEach(x => { const k = HB.keyOf(x.date_str); if (hd[x.team] && hd[x.team][k] !== undefined) hd[x.team][k]++ });
+            const mv = Math.max(1, ...teams.flatMap(t => cols.map(k => hd[t][k])));
+            const colW = isDaily ? 30 : 52;
+            const isWknd = i => isDaily && [0, 6].includes(pd(cols[i]).getDay());
+            const sdLabels = cols.map(k => isDaily
+                ? ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][pd(k).getDay()] + ' ' + k.slice(8)
+                : (HB.unit === 'Week' ? 'Wk ' : '') + HB.labelOf(k));
+            const isDark = document.documentElement.dataset.theme === 'dark';
+            const hmCellColor = isDark ? 'rgba(109,167,236,' : 'rgba(42,120,214,';
+            const hmTextDark = isDark ? '#18181b' : '#ffffff';
+            const hmTextLight = isDark ? 'var(--tx2)' : '#0d366b';
+            document.getElementById('pm-hm').innerHTML = '<table style="border-collapse:collapse;font-size:10px;min-width:' + (cols.length * (colW + 1) + 85) + 'px"><thead><tr><th style="width:75px;padding:3px 6px;text-align:left;color:var(--tx2);position:sticky;left:0;background:var(--s1);z-index:2">Team</th>' + sdLabels.map((d, i) => { const wknd = isWknd(i); return '<th style="width:' + colW + 'px;padding:3px 1px;text-align:center;color:' + (wknd ? 'var(--pend)' : 'var(--tx2)') + ';' + (isDaily ? 'writing-mode:vertical-rl;' : '') + 'font-size:9px;background:' + (wknd ? 'rgba(255,107,107,.04)' : 'transparent') + '">' + d + '</th>' }).join('') + '</tr></thead><tbody>' + teams.map(t => '<tr><td style="padding:2px 6px;white-space:nowrap;color:var(--tx);position:sticky;left:0;background:var(--s1);z-index:1">' + t + '</td>' + cols.map((d, i) => { const val = hd[t]?.[d] || 0; const wknd = isWknd(i); const a = val === 0 ? 0 : .15 + .7 * (val / mv); const bg = val === 0 ? (wknd ? 'rgba(255,107,107,.06)' : 'var(--s2)') : hmCellColor + a.toFixed(2) + ')'; const title = t + ' | ' + sdLabels[i] + ': ' + val + ' file' + (val !== 1 ? 's' : '') + (wknd ? ' (!) Weekend' : ''); return '<td style="width:' + colW + 'px;height:22px;text-align:center;background:' + bg + ';border-radius:2px;padding:0;font-weight:600;font-size:10px;color:' + (val > 0 ? (a > 0.5 ? hmTextDark : hmTextLight) : 'transparent') + ';cursor:default" title="' + title + '">' + (val || '') + '</td>' }).join('') + '</tr>').join('') + '</tbody></table>';
+        }
+
+        // ==================== COO ====================
+
+        // ==================== PM ====================
+
+
+        function sl(sla, outliers) {
+            let a = [];
+            if (sla < 60) a.push('<b>Critical SLA Breach:</b> Below 60%. Processes are broken.');
+            else if (sla < 80) a.push('<b>Warning:</b> SLA ' + sla.toFixed(1) + '% is under 80% target.');
+            if (outliers > 0) a.push('<b>' + outliers + ' Severe Outliers:</b> Files took >3 days.');
+            if (!a.length) return '<div class="ca ca-ok">' + ICO.ok() + ' SLA compliance is healthy.</div>';
+            return '<div class="ca ca-bad">' + ICO.alert(16) + ' ' + a.join('<br>') + '</div>';
+        }
+
+        function rAll() {
+            rCEO();
+            rDist();
+            rFileDist();
+            rHeatmap();
+            setTimeout(matchCardHeights, 0);
+        }
+
+
+        fetchData();
+    </script>
+</body>
+</html>

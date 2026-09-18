@@ -1,0 +1,496 @@
+/* Custom scrollbars matching the light example */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 140, 0, 0.3);
+  border-radius: 10px;
+}
+
+/* Base resets & typography */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+/* Legacy CSS classes for Javascript mappings */
+.text-muted { color: #94a3b8; }
+
+.summary-green { color: #10b981 !important; text-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+.summary-amber { color: #f59e0b !important; text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+.summary-red { color: #ef4444 !important; text-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+
+.trend-up { color: #10b981; }
+.trend-down { color: #ef4444; }
+
+.badge { 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.5rem; 
+  border-radius: 0.5rem; 
+  font-size: 0.70rem; 
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Background maps for badges */
+.bg-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+.bg-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+.bg-amber { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+.bg-green { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+
+.hidden { display: none !important; }
+.badge-hidden { display: none !important; }
+.ml-2 { margin-left: 0.5rem; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-sm { font-size: 0.875rem; }
+
+/* Dashboard Tables */
+.table-container {
+  width: 100%;
+  overflow: visible;
+}
+.data-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+.data-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+.data-table { 
+  width: 100%; 
+  text-align: left; 
+  border-collapse: collapse; 
+  font-size: 0.815rem;
+  font-weight: 500;
+}
+.data-table th, .data-table td { 
+  padding: 1rem; 
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15); 
+}
+.data-table th { 
+  color: #64748b; 
+  font-weight: 700; 
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.data-table.compact th, .data-table.compact td { 
+  padding: 0.65rem 1rem; 
+}
+
+/* Modals */
+.modal { 
+  background: transparent; 
+  padding: 0;
+  border: none;
+}
+.modal::backdrop { 
+  background: rgba(15, 23, 42, 0.6); 
+  backdrop-filter: blur(8px); 
+}
+
+/* Time Tabs Active State */
+.time-tabs .tab-btn {
+  color: #64748b;
+  cursor: pointer;
+}
+.time-tabs .tab-btn:hover {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+/* Sync Indicator Status */
+.status-dot { transition: all 0.3s ease; }
+.status-dot.online { 
+  background-color: #10b981; 
+  box-shadow: 0 0 12px #10b981;
+}
+
+/* Loading animations */
+@keyframes loading-pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+.loading {
+  animation: loading-pulse 2s infinite ease-in-out;
+  color: #ff8c00;
+  font-weight: 600;
+  padding: 1rem 0;
+}
+
+/* Command Palette Custom CSS */
+#cmd-results { list-style: none; padding-left: 0;}
+#cmd-results li { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(148, 163, 184, 0.2); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem;}
+#cmd-results li:hover, #cmd-results li.selected { background: rgba(255, 140, 0, 0.1); color: #ff8c00; }
+
+/* Risk Weights Modal overrides */
+.total-valid { color: #10b981; font-weight: bold; }
+.total-invalid { color: #ef4444; font-weight: bold; }
+
+/* Health Dynamic generated items CSS */
+.health-item {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+.health-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+.health-val {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Risk bar in tables */
+.risk-score-wrapper { display: flex; align-items: center; }
+.score-badge { padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-weight: bold; font-size: 0.75rem; min-width: 48px; text-align: center; }
+
+/* Segmented Intensity Bar */
+.intensity-track {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  height: 12px;
+  width: 100%;
+}
+.intensity-segment {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px;
+  background-color: rgba(148, 163, 184, 0.2); /* inactive */
+  transition: background-color 0.2s ease;
+}
+.intensity-segment.active-red { background-color: #ef4444; }
+.intensity-segment.active-orange { background-color: #fb923c; }
+.intensity-segment.active-yellow { background-color: #f59e0b; }
+.intensity-segment.active-green { background-color: #10b981; }
+
+.intensity-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-left: 6px;
+  min-width: 25px;
+}
+
+/* Tweak Weights Button */
+.btn-tweak-weights {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background-color: transparent;
+  color: #ea580c;
+  border: 1px solid #fdba74;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+.btn-tweak-weights:hover {
+  background-color: #fff7ed;
+  border-color: #fb923c;
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.1);
+  text-decoration: none;
+}
+
+/* Team Avatar */
+.team-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 800;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  margin-right: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Stat card tooltip fix - allow tooltip to overflow KPI cards */
+.stat-clickable {
+  overflow: visible !important;
+}
+
+
+/* Custom Tooltips */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.3rem;
+  cursor: help;
+}
+.tooltip-icon {
+  font-size: 14px;
+  color: #94a3b8;
+  transition: color 0.15s;
+}
+.tooltip-wrapper:hover .tooltip-icon {
+  color: #ff8c00;
+}
+.tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1e293b;
+  color: #f8fafc;
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: normal;
+  width: 200px;
+  z-index: 99999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  transition: opacity 0.18s, transform 0.18s;
+  pointer-events: none;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1e293b;
+}
+.tooltip-wrapper:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-bottom .tooltip-content {
+  bottom: auto;
+  top: calc(100% + 8px);
+  transform: translateX(-50%) translateY(-4px);
+}
+.tooltip-bottom .tooltip-content::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #1e293b;
+}
+.tooltip-bottom:hover .tooltip-content {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip Align Left (prevent clipping on left edge) */
+.tooltip-left-align .tooltip-content {
+  left: 0;
+  transform: translateY(4px);
+}
+.tooltip-left-align.tooltip-bottom .tooltip-content {
+  transform: translateY(-4px);
+}
+.tooltip-left-align:hover .tooltip-content,
+.tooltip-left-align.tooltip-bottom:hover .tooltip-content {
+  transform: translateY(0);
+}
+.tooltip-left-align .tooltip-content::after {
+  left: 10px;
+  transform: none;
+}
+
+/* Tooltip Align Right (prevent clipping on right edge) */
+.tooltip-right-align .tooltip-content {
+  left: auto;
+  right: 0;
+  transform: translateY(4px);
+}
+.tooltip-right-align.tooltip-bottom .tooltip-content {
+  transform: translateY(-4px);
+}
+.tooltip-right-align:hover .tooltip-content,
+.tooltip-right-align.tooltip-bottom:hover .tooltip-content {
+  transform: translateY(0);
+}
+.tooltip-right-align .tooltip-content::after {
+  left: auto;
+  right: 10px;
+  transform: none;
+}
+
+
+/* ===================================
+   HEALTH PARAMETERS - NEW CARD DESIGN
+   =================================== */
+.health-card {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  overflow: visible;
+  position: relative;
+}
+.health-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  z-index: 20;
+}
+
+/* Left accent per card type */
+.hcard-rose  { border-left: 3px solid #f43f5e; }
+.hcard-amber { border-left: 3px solid #f59e0b; }
+.hcard-orange{ border-left: 3px solid #fb923c; }
+.hcard-red   { border-left: 3px solid #ef4444; }
+.hcard-indigo{ border-left: 3px solid #6366f1; }
+.hcard-green { border-left: 3px solid #10b981; }
+.hcard-slate { border-left: 3px solid #94a3b8; }
+
+.health-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.health-card-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.health-card-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.health-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-height: 65px;
+  overflow-y: auto;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+.health-card-body.health-empty {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  align-items: center;
+}
+
+/* Team Badges inside health cards */
+.health-team-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.hbadge-rose   { background: rgba(244, 63, 94,  0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.25); }
+.hbadge-amber  { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.25); }
+.hbadge-orange { background: rgba(251, 146, 60, 0.1); color: #ea580c; border: 1px solid rgba(251, 146, 60, 0.25); }
+.hbadge-red    { background: rgba(239, 68, 68,  0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25); }
+.hbadge-indigo { background: rgba(99, 102, 241, 0.1); color: #4f46e5; border: 1px solid rgba(99, 102, 241, 0.25); }
+.hbadge-slate  { background: rgba(100, 116, 139,0.1); color: #475569; border: 1px solid rgba(100, 116, 139,0.2); }
+.hbadge-default{ background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.hbadge-extra {
+  opacity: 0.7;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.health-all-clear {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.health-stale-count {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ef4444;
+  text-shadow: 0 0 10px rgba(239,68,68,0.2);
+}
+.health-stale-label {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Pending Tables - Team Count Badge */
+.pending-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 0.45rem;
+  background: #ff8c00;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  border-radius: 999px;
+}
+
+/* Badge green variant (for health stale items clear state) */
+.bg-green { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+
+/* ==========================================
+   TOOLTIP OVERFLOW SAFETY — prevent clipping
+   ========================================== */
+/* Health grid container must not clip tooltips */
+#health-container {
+  overflow: visible;
+}
+
+/* Health card header needs overflow visible for inline tooltips */
+.health-card-header {
+  overflow: visible;
+  position: relative;
+  z-index: 10;
+}
+
+/* Data table thead must let tooltip escape */
+.data-table thead {
+  overflow: visible;
+}
+.data-table th {
+  overflow: visible;
+  position: relative;
+}
+
+/* Risk / Pending table parent wrappers — tooltip must escape scroll container */
+.data-table td,
+.data-table tr {
+  overflow: visible;
+}

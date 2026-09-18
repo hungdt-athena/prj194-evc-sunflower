@@ -1,0 +1,11 @@
+node_modules/
+data/*.db
+.env
+.DS_Store
+*.db-shm
+*.db-wal
+
+# Google service account keys — never commit
+sunflower-alert-*.json
+*-service-account.json
+
