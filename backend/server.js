@@ -83,7 +83,7 @@ app.use((req, res) => {
 
 // ─── Start ──────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  🌻 EVC Sunflower Dashboard Backend`);
+  console.log(`\n  🌍 EVC Sunflower Dashboard Backend`);
   console.log(`  ─────────────────────────────`);
   console.log(`  Server:  http://localhost:${PORT}`);
   console.log(`  API:     http://localhost:${PORT}/api/meta`);

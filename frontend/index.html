@@ -16,6 +16,8 @@
             --s2: #f4f4f5;
             --bd: #e4e4e7;
             --ac: #f97316;
+            --logo-bg: #18181b;
+            --logo-fg: #f97316;
             --ac-light: rgba(249, 115, 22, 0.08);
             --ac-mid: rgba(249, 115, 22, 0.15);
             --ac2: #059669;
@@ -34,6 +36,8 @@
             --s2: #27272a;
             --bd: #3f3f46;
             --ac: #fb923c;
+            --logo-bg: #fb923c;
+            --logo-fg: #18181b;
             --ac-light: rgba(251, 146, 60, 0.1);
             --ac-mid: rgba(251, 146, 60, 0.2);
             --ac2: #34d399;
@@ -75,12 +79,12 @@
         }
         .hdr-logo {
             width: 28px; height: 28px;
-            background: var(--ac);
+            background: var(--logo-bg);
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-        .hdr-logo svg { width: 16px; height: 16px; }
+        .hdr-logo svg { width: 16px; height: 16px; stroke: var(--logo-fg); }
         .bdg {
             background: var(--ac);
             color: #fff;
@@ -591,7 +595,7 @@
 
     <div class="hdr">
         <div class="hdr-logo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.25"/><path d="M2.75 12h18.5"/><path d="M12 2.75c2.4 2.5 3.75 5.8 3.75 9.25S14.4 18.75 12 21.25c-2.4-2.5-3.75-5.8-3.75-9.25S9.6 5.25 12 2.75z"/></svg>
         </div>
         <h1>EVC Sunflower Dashboard</h1>
         <span class="rng" id="rng"></span>
