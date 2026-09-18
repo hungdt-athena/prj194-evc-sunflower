@@ -7,6 +7,18 @@ const { fetchSheetRows } = require('./sheets');
 const { toMeeting, toReviews, DEFAULT_SLA_HOURS } = require('./lib/transform');
 const defaultStore = require('./db');
 
+/**
+ * Credential lấy từ biến môi trường: JSON thuần, hoặc base64 cho những nơi
+ * làm hỏng chuỗi dài khi dán.
+ */
+function credentialsFromEnv() {
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (raw && raw.trim()) return raw.trim();
+  const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_B64;
+  if (b64 && b64.trim()) return Buffer.from(b64.trim(), 'base64').toString('utf8');
+  return null;
+}
+
 function emitSSE(sseClients, payload) {
   const msg = `data: ${JSON.stringify(payload)}\n\n`;
   for (const client of sseClients) {
@@ -22,7 +34,7 @@ async function runSync(opts = {}) {
     slaHours = Number(process.env.SLA_HOURS) || DEFAULT_SLA_HOURS,
     sheetId = process.env.SHEET_ID,
     keyFile = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE || process.env.GOOGLE_APPLICATION_CREDENTIALS,
-    credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+    credentialsJson = credentialsFromEnv(),
     fetchRows = () => fetchSheetRows({ sheetId, keyFile, credentialsJson }),
   } = opts;
 
@@ -85,13 +97,21 @@ async function runSync(opts = {}) {
  * trường lúc khởi động, nên khi thiếu biến thì log này là chỗ nhìn đầu tiên.
  */
 function describeConfig() {
-  const json = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  return [
+  const json = credentialsFromEnv();
+  const lines = [
     `SHEET_ID=${process.env.SHEET_ID ? 'set' : 'MISSING'}`,
-    `GOOGLE_SERVICE_ACCOUNT_JSON=${json ? json.length + ' chars' : 'missing'}`,
-    `GOOGLE_SERVICE_ACCOUNT_KEY_FILE=${process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE || 'missing'}`,
+    `credentials=${json ? json.length + ' chars' : 'MISSING'}`,
     `SLA_HOURS=${process.env.SLA_HOURS || DEFAULT_SLA_HOURS}`,
-  ].join(' · ');
+  ];
+  // Khi credentials rỗng, thủ phạm thường là tên biến gõ sai — liệt kê tên
+  // (không phải giá trị) các biến liên quan để lỗi chính tả tự lộ ra.
+  if (!json) {
+    const seen = Object.keys(process.env)
+      .filter(k => /GOOGLE|SERVICE|ACCOUNT|SHEET|CREDENTIAL/i.test(k))
+      .sort();
+    lines.push(`env keys seen: ${seen.length ? seen.join(', ') : '(none)'}`);
+  }
+  return lines.join(' · ');
 }
 
 function startSyncLoop(app) {

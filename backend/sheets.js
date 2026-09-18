@@ -34,7 +34,7 @@ function createClient({ keyFile, credentialsJson }) {
     return google.sheets({ version: 'v4', auth: new google.auth.GoogleAuth({ credentials, scopes: SCOPES }) });
   }
   if (!keyFile) {
-    throw new Error('No credentials. Set GOOGLE_SERVICE_ACCOUNT_JSON (on Replit: add the secret, then Republish so the deployment reloads it)');
+    throw new Error('No credentials. Set GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_SERVICE_ACCOUNT_B64 (on Replit: add the secret, then Republish so the deployment reloads it)');
   }
   return google.sheets({ version: 'v4', auth: new google.auth.GoogleAuth({ keyFile, scopes: SCOPES }) });
 }

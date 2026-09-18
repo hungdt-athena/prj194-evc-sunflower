@@ -47,6 +47,7 @@ then put its JSON key somewhere the app can read it.
 |---|---|---|
 | `SHEET_ID` | — | the spreadsheet to read |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | — | the service-account key as raw JSON; use this where you cannot ship a file |
+| `GOOGLE_SERVICE_ACCOUNT_B64` | — | the same key base64-encoded, for hosts that mangle long pasted values |
 | `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` | — | path to the service-account JSON key; ignored when the variable above is set |
 | `PORT` | `3000` | HTTP port |
 | `DB_PATH` | `./data/sunflower.db` | SQLite file; the directory is created if missing |
@@ -92,6 +93,11 @@ date parsing, review-time and SLA maths, status mapping, deletion marking, and t
 2. Under **Secrets**, set `SHEET_ID`, `SYNC_API_KEY`, and `GOOGLE_SERVICE_ACCOUNT_JSON`
    (paste the whole key file as one line). Leave `PORT` alone — Replit sets it.
 3. Run command: `npm start`.
+   Startup prints a `[Config]` line naming which variables it can see, and when
+   credentials are missing it also lists the related variable names it did find,
+   so a misspelled secret shows up immediately. A deployment reads its
+   environment once at startup: after changing a secret, republish. Replit
+   deploys the Repl's files, not the GitHub branch, so pull first.
 4. Deploy as a **Reserved VM**. On Autoscale the process sleeps between requests, which
    stops the sync timer, so the dashboard would only be as fresh as its last visitor.
 
