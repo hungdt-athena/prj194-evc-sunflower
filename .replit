@@ -1,0 +1,13 @@
+modules = ["nodejs-20"]
+run = "npm start"
+entrypoint = "backend/server.js"
+
+[deployment]
+# Reserved VM, not Autoscale: the sheet sync is a setInterval inside the
+# process, so an instance that sleeps between requests stops syncing.
+deploymentTarget = "vm"
+run = ["npm", "start"]
+
+[env]
+# PORT is supplied by Replit; the app falls back to 3000 when it is absent.
+NODE_ENV = "production"
