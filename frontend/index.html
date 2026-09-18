@@ -11,42 +11,44 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         :root {
-            --bg: #fafafa;
+            --bg: #f4f0e8;
             --s1: #ffffff;
             --s2: #f4f4f5;
             --bd: #e4e4e7;
-            --ac: #f97316;
-            --logo-bg: #18181b;
-            --logo-fg: #f97316;
-            --ac-light: rgba(249, 115, 22, 0.08);
-            --ac-mid: rgba(249, 115, 22, 0.15);
+            --ac: #ffa600;
+            --ac-on: #202124;
+            --ac-ink: #8f5a00;
+            --logo-bg: #202124;
+            --logo-fg: #ffa600;
+            --ac-light: rgba(255, 166, 0, 0.12);
+            --ac-mid: rgba(255, 166, 0, 0.22);
             --ac2: #059669;
             --tx: #18181b;
             --tx2: #71717a;
             --rev: #059669;
             --conf: #d97706;
             --pend: #dc2626;
-            --risk: #ea580c;
             --r: 10px;
         }
 
         [data-theme="dark"] {
-            --bg: #09090b;
-            --s1: #18181b;
-            --s2: #27272a;
-            --bd: #3f3f46;
-            --ac: #fb923c;
-            --logo-bg: #fb923c;
-            --logo-fg: #18181b;
-            --ac-light: rgba(251, 146, 60, 0.1);
-            --ac-mid: rgba(251, 146, 60, 0.2);
+            --bg: #0b0b0c;
+            --s1: #202124;
+            --s2: #2b2c30;
+            --bd: #3f4045;
+            --ac: #ffa600;
+            --ac-on: #202124;
+            --ac-ink: #ffb733;
+            --logo-bg: #ffa600;
+            --logo-fg: #202124;
+            --ac-light: rgba(255, 166, 0, 0.14);
+            --ac-mid: rgba(255, 166, 0, 0.24);
             --ac2: #34d399;
             --tx: #fafafa;
             --tx2: #a1a1aa;
             --rev: #34d399;
             --conf: #fbbf24;
             --pend: #f87171;
-            --risk: #fb923c;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -87,7 +89,7 @@
         .hdr-logo svg { width: 16px; height: 16px; stroke: var(--logo-fg); }
         .bdg {
             background: var(--ac);
-            color: #fff;
+            color: var(--ac-on);
             padding: 2px 8px;
             border-radius: 20px;
             font-size: 10px;
@@ -119,7 +121,7 @@
             display: flex; align-items: center; gap: 6px;
         }
         .xbtn:hover { background: var(--s2); color: var(--tx); border-color: var(--tx2); }
-        .xbtn.active { background: var(--ac-light); color: var(--ac); border-color: var(--ac); }
+        .xbtn.active { background: var(--ac-light); color: var(--ac-ink); border-color: var(--ac-ink); }
 
         /* ── Theme toggle capsule ───────────────── */
         .theme-toggle {
@@ -166,8 +168,8 @@
             font-weight: 600;
             transition: all .15s;
         }
-        .pb:hover { border-color: var(--ac); color: var(--ac); background: var(--ac-light); }
-        .pb.on { background: var(--ac); border-color: var(--ac); color: #fff; font-weight: 700; }
+        .pb:hover { border-color: var(--ac-ink); color: var(--ac-ink); background: var(--ac-light); }
+        .pb.on { background: var(--ac); border-color: var(--ac); color: var(--ac-on); font-weight: 700; }
         .di {
             padding: 6px 10px;
             border: 1.5px solid var(--bd);
@@ -206,7 +208,7 @@
             border: 1.5px solid var(--ac);
             border-radius: 7px;
             background: var(--ac);
-            color: #fff;
+            color: var(--ac-on);
             cursor: pointer;
             font-size: 12px;
             font-weight: 700;
@@ -263,7 +265,7 @@
         .kv.grn { color: var(--rev); }
         .kv.ylw { color: var(--conf); }
         .kv.red { color: var(--pend); }
-        .kv.prp { color: var(--ac); }
+        .kv.prp { color: var(--ac-ink); }
         .kv.tel { color: var(--ac2); }
         .ks { font-size: 12px; color: var(--tx2); margin-top: 4px; }
         .kd {
@@ -344,11 +346,9 @@
         .sr { background: var(--rev); }
         .sc { background: var(--conf); }
         .sp2 { background: var(--pend); }
-        .srisk { background: var(--risk); }
         .sg { color: var(--rev); }
         .sw { color: var(--conf); }
         .sb { color: var(--pend); }
-        .srk { color: var(--risk); }
         .tv { font-weight: 700; }
         .tl2 { color: var(--tx2); }
 
@@ -368,13 +368,6 @@
             font-size: 11px; font-weight: 600; color: var(--tx2);
             font-variant-numeric: tabular-nums;
         }
-        .risk-badge {
-            display: inline-flex; align-items: center; gap: 3px;
-            padding: 2px 7px; border-radius: 4px;
-            font-size: 11px; font-weight: 700;
-            background: rgba(234, 88, 12, 0.1); color: var(--risk);
-            border: 1px solid rgba(234, 88, 12, 0.25);
-        }
 
         /* ── Insight Panel (Redesigned) ─────────── */
         .rb {
@@ -391,7 +384,7 @@
         }
         .rb-icon {
             width: 30px; height: 30px; border-radius: 8px;
-            background: var(--ac-light); color: var(--ac);
+            background: var(--ac-light); color: var(--ac-ink);
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
@@ -411,7 +404,7 @@
         .rb-label {
             font-size: 10px; font-weight: 800; text-transform: uppercase;
             letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px;
-            margin-bottom: 10px; color: var(--ac);
+            margin-bottom: 10px; color: var(--ac-ink);
         }
         .rb-label.act { color: #92400e; }
         [data-theme="dark"] .rb-label.act { color: #fbbf24; }
@@ -439,7 +432,7 @@
         }
         .ab-header {
             display: flex; align-items: center; gap: 8px;
-            font-weight: 800; font-size: 13px; color: var(--ac);
+            font-weight: 800; font-size: 13px; color: var(--ac-ink);
             margin-bottom: 8px;
         }
         .ab-header svg { width: 16px; height: 16px; flex-shrink: 0; }
@@ -503,7 +496,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,.12);
             pointer-events: none; line-height: 1.5; display: none;
         }
-        #tt b { color: var(--ac); display: block; margin-bottom: 4px; font-size: 13px; }
+        #tt b { color: var(--ac-ink); display: block; margin-bottom: 4px; font-size: 13px; }
         #tt .tr { display: flex; justify-content: space-between; gap: 14px; margin-top: 3px; }
         #tt .tl2 { color: var(--tx2); }
         .tv { font-weight: 700; }
@@ -517,7 +510,7 @@
             font-size: 9px; cursor: help; margin-left: 4px; flex-shrink: 0;
             font-style: normal; border: 1.5px solid var(--bd);
         }
-        .hi:hover { background: var(--ac); color: #fff; border-color: var(--ac); }
+        .hi:hover { background: var(--ac); color: var(--ac-on); border-color: var(--ac); }
 
         /* ── Popover ────────────────────────────── */
         #pop {
@@ -527,7 +520,7 @@
             max-width: 280px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
             pointer-events: none; line-height: 1.7; display: none;
         }
-        #pop b { color: var(--ac); font-size: 13px; display: block; margin-bottom: 4px; }
+        #pop b { color: var(--ac-ink); font-size: 13px; display: block; margin-bottom: 4px; }
 
         /* ── Small-N warning ───────────────────── */
         .sn-warn { font-size: 10px; color: var(--conf); font-weight: 700; margin-left: 3px; }
@@ -640,10 +633,10 @@
             <div class="rb-col">
                 <div class="rb-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> How to Read</div>
                 <div class="rb-items">
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Start at the <b>KPI row</b>, then scan the charts for the team or day that breaks the pattern.</span></div>
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Colour is consistent everywhere: <b>green</b> = reviewed, <b>amber</b> = waiting, <b>red</b> = behind target.</span></div>
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Each card has its own <b>?</b> tooltip explaining what it measures and how to read it.</span></div>
-                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Everything respects the <b>period and team filters</b> at the top of the page.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac-ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Start at the <b>KPI row</b>, then scan the charts for the team or day that breaks the pattern.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac-ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Colour is consistent everywhere: <b>green</b> = reviewed, <b>amber</b> = waiting, <b>red</b> = behind target.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac-ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Each card has its own <b>?</b> tooltip explaining what it measures and how to read it.</span></div>
+                    <div class="rb-item"><svg class="rb-item-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ac-ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Everything respects the <b>period and team filters</b> at the top of the page.</span></div>
                 </div>
             </div>
             <div class="rb-col">
@@ -912,7 +905,7 @@
 
         // Base chart opts
         function gv(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() }
-        function btt() { return { backgroundColor: gv('--s1')||'#fff', titleColor: gv('--ac')||'#f97316', bodyColor: gv('--tx')||'#18181b', borderColor: gv('--bd')||'#e4e4e7', borderWidth: 1.5, padding: 12, cornerRadius: 9, boxPadding: 5, displayColors: true, usePointStyle: true, boxWidth: 8, boxHeight: 8 } }
+        function btt() { return { backgroundColor: gv('--s1')||'#fff', titleColor: gv('--ac-ink')||'#8f5a00', bodyColor: gv('--tx')||'#18181b', borderColor: gv('--bd')||'#e4e4e7', borderWidth: 1.5, padding: 12, cornerRadius: 9, boxPadding: 5, displayColors: true, usePointStyle: true, boxWidth: 8, boxHeight: 8 } }
         function bd() { const tx2 = gv('--tx2')||'#71717a'; const bd2 = gv('--bd')||'#e4e4e7'; return { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tx2, font: { size: 10, family:'Inter,system-ui,sans-serif' } } }, tooltip: btt() }, scales: { x: { ticks: { color: tx2, font: { size: 9 } }, grid: { color: bd2 } }, y: { ticks: { color: tx2, font: { size: 9 } }, grid: { color: bd2 } } } } }
         // Donut base opts (maintainAspectRatio:true keeps circle shape)
         function bdo() { return { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'right', labels: { color: gv('--tx2'), font: { size: 10 } } }, tooltip: btt() } } }
